@@ -1,0 +1,216 @@
+<style>
+        /* CSS from your previous "FANTASTIC" version */
+        :root {
+          --bg-secondary: #ffffff; 
+          --bg-tertiary: #e9eff3; 
+          --text-primary: #2c3e50; 
+          --text-secondary: #526c84; 
+          --accent: #2980b9; 
+          --accent-secondary: #8e44ad; 
+          --border: #d3e0ea; 
+          --success: #27ae60; 
+          --failure: #c0392b; 
+          --partial-success: #f39c12; 
+          --partial-failure: #7f8c8d; 
+          --warning: #f1c40f; 
+          --shadow-light: rgba(44, 62, 80, 0.08);
+          --shadow-medium: rgba(44, 62, 80, 0.12);
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        .dice-roller-app { background-color: var(--bg-primary); color: var(--text-primary); min-height: 100vh; font-family: 'League Spartan', 'Inter', system-ui, sans-serif; font-weight: 400; line-height: 1.6; }
+        .app-title-header { text-align: center; padding: 20px 0; margin-bottom: 20px; }
+        .app-title-header h1 { font-size: 2.8rem; font-weight: 800; color: var(--accent); letter-spacing: 1px; text-shadow: 1px 1px 0px var(--bg-tertiary); }
+        .main-layout-container { display: grid; grid-template-columns: 280px 1fr; gap: 30px; max-width: 900px; margin: 0 auto; padding: 0 20px 30px 20px; }
+        .left-column { padding: 20px; background-color: var(--bg-secondary); border-radius: 12px; box-shadow: 0 4px 12px var(--shadow-light); align-self: start; }
+        .right-column { /* No specific styling */ }
+        
+        header.controls-header { 
+            display: flex; 
+            justify-content: flex-end; 
+            align-items: center; 
+            margin-bottom: 25px; 
+            padding-bottom: 15px; 
+            border-bottom: 2px solid var(--accent); 
+        }
+        .difficulty-control { 
+            display: flex; /* Use flex to align label and buttons */
+            align-items: center; 
+            gap: 10px; /* Space between "DIFFICULTY:" and the buttons/value */
+            background-color: var(--bg-secondary);
+            padding: 8px 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 3px var(--shadow-light);
+        }
+        .difficulty-control .difficulty-label { /* New class for the "DIFFICULTY:" text */
+            color: var(--text-secondary); 
+            font-weight: 600; 
+            font-size: 0.9rem; 
+        }
+        .difficulty-buttons-group { /* Wrapper for buttons and display */
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        #difficultyDisplay {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: var(--accent);
+            padding: 0 8px; /* Space around the number */
+            min-width: 20px; /* Ensure some space for the number */
+            text-align: center;
+        }
+        .difficulty-buttons-group button { 
+            width: 30px; height: 30px; 
+            border: 1px solid var(--border); 
+            border-radius: 8px; 
+            background-color: var(--bg-tertiary); /* Slightly different from overall bg */
+            color: var(--text-primary); 
+            font-size: 1.2rem; font-weight: bold;
+            cursor: pointer; 
+            transition: all 0.2s;
+            line-height: 1; /* For better vertical alignment of +/- */
+        }
+        .difficulty-buttons-group button:hover { background-color: var(--accent); color: white; transform: translateY(-1px); }
+        .difficulty-buttons-group button:active { transform: translateY(0); }
+
+        /* ... (rest of your existing CSS, unchanged) ... */
+        .right-column h2 { font-size: 1.5rem; color: var(--accent); margin-bottom: 18px; padding-bottom: 10px; font-weight: 600; border-bottom: 1px solid var(--border); }
+        .dice-pool-display { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 25px; padding: 18px; background-color: var(--bg-secondary); border-radius: 12px; min-height: 74px; box-shadow: 0 4px 12px var(--shadow-light); align-items: center; justify-content: center; }
+        .dice-slot { width: 56px; height: 56px; border-radius: 10px; display: flex; align-items: center; justify-content: center; position: relative; background-color: var(--bg-tertiary); overflow: hidden; transition: transform 0.2s ease-out; }
+        .dice-slot:hover { transform: scale(1.05); }
+        .dice-slot.empty { border: 2.5px dashed rgba(41, 128, 185, 0.5); background-color: transparent; }
+        .dice-slot.filled, .dice-slot.extra, .dice-slot.special-move-covered { border-width: 2.5px; border-style: solid; box-shadow: 0 2px 5px var(--shadow-light); }
+        .dice-slot.filled { border-color: var(--accent); }
+        .dice-slot.extra { border-color: var(--accent-secondary); }
+        .dice-slot.special-move-covered { border-color: var(--accent-secondary); padding: 0; }
+        img.player-cover-image { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; display: block; }
+        div.player-cover-image.generic-cover { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background-color: var(--bg-tertiary); font-size: 2rem; color: var(--accent-secondary); border-radius: 8px; }
+        .die-face { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: bold; color: white; border-radius: 8px; text-shadow: 1px 1px 3px rgba(0,0,0,0.25); box-shadow: inset 0 0 5px rgba(0,0,0,0.1); }
+        .die-face.placeholder, .die-face.filled-placeholder, .die-face.waiting { color: var(--text-secondary); background-color: transparent; font-size: 2.2rem; box-shadow: none; text-shadow: none; }
+        .die-face.success { background-color: var(--success); }
+        .die-face.failure { background-color: var(--failure); }
+        .die-face.partial-success { background-color: var(--partial-success); }
+        .die-face.partial-failure { background-color: var(--partial-failure); }
+        .die-face.pushed-luck-die { background-color: var(--warning); color: var(--text-primary); border: 2px dashed var(--text-primary); }
+        .die-face.animating { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake { 0%,100%{transform:translateX(0) rotate(0)}20%{transform:translateX(-4px) rotate(-3deg)}40%{transform:translateX(4px) rotate(3deg)}60%{transform:translateX(-3px) rotate(-2deg)}80%{transform:translateX(3px) rotate(2deg)} }
+        .player-indicator { position: absolute; bottom: -6px; right: -6px; width: 26px; height: 26px; border-radius: 13px; overflow: hidden; border: 2px solid white; box-shadow: 0 1px 4px var(--shadow-medium); background-color: var(--text-secondary); }
+        .player-indicator.generic { display:flex; align-items:center; justify-content:center; color: white; font-size: 0.9rem; font-weight: bold; } 
+        .player-indicator img { width: 100%; height: 100%; object-fit: cover; }
+        .status { padding: 14px 18px; background-color: var(--bg-secondary); border-radius: 10px; margin-bottom: 20px; text-align: center; color: var(--text-secondary); font-weight: 500; font-size: 1.05rem; box-shadow: 0 2px 8px var(--shadow-light); border-left: 4px solid var(--accent); }
+        .players-section h2 { font-size: 1.5rem; color: var(--accent); margin-bottom: 18px; padding-bottom: 10px; font-weight: 600; border-bottom: 1px solid var(--border); text-align: center; }
+        .player-list { display: flex; flex-direction: column; gap: 15px; align-items: stretch; }
+        .player-item { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 10px; background-color: var(--bg-primary); box-shadow: 0 2px 6px var(--shadow-light); transition: all 0.2s ease-out; }
+        .player-item:hover { transform: translateY(-2px); box-shadow: 0 4px 10px var(--shadow-medium); }
+        .player-info { display: flex; align-items: center; gap: 10px; flex-grow: 1; }
+        .player-avatar-container { position: relative; width: 48px; height: 48px; border-radius: 50%; overflow: hidden; border: 2.5px solid var(--accent); display: flex; align-items: center; justify-content: center; background-color: var(--bg-tertiary); flex-shrink: 0; }
+        .player-avatar-img { width: 100%; height: 100%; object-fit: cover; }
+        .player-initial-avatar { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background-color: var(--accent); color: white; font-size: 1.6rem; font-weight: bold; font-family: 'League Spartan', system-ui, sans-serif; }
+        .player-name-label { font-size: 0.9rem; color: var(--text-primary); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-grow: 1; }
+        .player-action-icons { display: flex; gap: 8px; }
+        .player-action-btn { background: var(--bg-secondary); border: 1px solid var(--border); color: var(--text-secondary); border-radius: 8px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.2rem; transition: all 0.2s ease-out; box-shadow: 0 1px 2px var(--shadow-light); }
+        .player-action-btn:hover:not(:disabled) { background-color: var(--accent); color: white; transform: scale(1.05); box-shadow: 0 2px 4px var(--shadow-medium); }
+        .player-action-btn:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; background-color: var(--bg-tertiary); color: #a0a0a0; }
+        .player-action-btn:last-child:hover:not(:disabled) { background-color: var(--accent-secondary); } 
+        .add-player-button { width: 100%; padding: 10px; margin-top: 20px; border-radius: 8px; border: 2.5px dashed var(--border); background-color: transparent; color: var(--text-secondary); font-size: 1.2rem; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease-out; }
+        .add-player-button:hover { color: var(--accent); border-color: var(--accent); background-color: var(--bg-tertiary); }
+        .no-players-text { font-size: 0.95rem; color: var(--text-secondary); margin-top: 15px; text-align: center; }
+        .actions-group { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; }
+        .actions-group button { padding: 14px 18px; border: none; border-radius: 10px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.2s ease-out; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 2px 5px var(--shadow-light); }
+        .actions-group button:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 4px 8px var(--shadow-medium); }
+        .actions-group button:active:not(:disabled) { transform: translateY(0px); box-shadow: 0 1px 3px var(--shadow-light); }
+        .actions-group button:disabled { opacity: 0.6; cursor: not-allowed; box-shadow: none; }
+        .btn-roll { font-size: 1.15rem; padding: 16px; }
+        .btn-roll.reset-mode { background-color: var(--failure); color: white; }
+        .btn-roll.roll-mode { background: linear-gradient(145deg, var(--success), #239b56); color: white; }
+        .special-action-buttons-container { display: flex; justify-content: center; gap: 12px; margin-bottom: 25px; min-height: 44px; }
+        .special-action-buttons-container button { padding: 10px 18px; border: none; border-radius: 8px; font-weight: 600; font-size: 0.9rem; cursor: pointer; background-color: var(--warning); color: var(--text-primary); box-shadow: 0 2px 5px var(--shadow-light); transition: all 0.2s ease-out; }
+        .special-action-buttons-container button:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 4px 8px var(--shadow-medium); filter: brightness(1.05); }
+        .special-action-buttons-container button:disabled { opacity: 0.5; background-color: var(--text-secondary); cursor: not-allowed; box-shadow: none; }
+        .modal { position: fixed; top:0; left:0; right:0; bottom:0; background-color:rgba(20,30,40,0.6); display:flex; align-items:center; justify-content:center; z-index:1000; padding:20px; backdrop-filter:blur(3px); }
+        .modal-content { background-color:var(--bg-secondary); padding:30px 35px; border-radius:16px; width:100%; max-width:480px; box-shadow:0 8px 25px rgba(44,62,80,0.2); }
+        .modal-content h2 { text-align:center; margin-top:0; margin-bottom:25px; color:var(--accent); font-size:1.6rem; }
+        .form-group { margin-bottom:22px; }
+        .form-group label { display:block; margin-bottom:8px; font-weight:500; color:var(--text-secondary); font-size:0.9rem; }
+        .form-group input[type="text"], .form-group input[type="file"] { width:100%; padding:12px 15px; border-radius:8px; border:1px solid var(--border); background-color:var(--bg-primary); color:var(--text-primary); font-size:1rem; transition:border-color .2s,box-shadow .2s; }
+        .form-group input[type="text"]:focus, .form-group input[type="file"]:focus { outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(41,128,185,0.2); }
+        .form-group input[type="file"] { padding:10px 15px; }
+        .image-preview { margin-top:15px; width:100px; height:100px; border-radius:50%; overflow:hidden; border:3px solid var(--border); box-shadow:0 2px 4px var(--shadow-light); }
+        .image-preview img { width:100%; height:100%; object-fit:cover; }
+        .modal-actions { display:flex; justify-content:flex-end; gap:12px; margin-top:30px; }
+        .modal-actions button { padding:10px 22px; border:none; border-radius:8px; font-weight:600; font-size:0.95rem; cursor:pointer; transition:all .2s ease-out; }
+        .modal-actions button:first-child { background-color:transparent; color:var(--text-secondary); border:1px solid var(--border); }
+        .modal-actions button:first-child:hover { background-color:var(--bg-tertiary); }
+        .modal-actions button:last-child { background-color:var(--accent); color:white; box-shadow:0 2px 5px var(--shadow-light); }
+        .modal-actions button:last-child:hover { background-color:#2471a3; box-shadow:0 3px 7px var(--shadow-medium); }
+        .modal-actions button:disabled { opacity:.5; cursor:not-allowed; box-shadow:none!important; }
+    </style>
+</head>
+<body>
+    <div class="dice-roller-app">
+
+        <div class="main-layout-container">
+            <div class="left-column players-section">
+                <h2>Players</h2>
+                <div id="playerList" class="player-list">
+                    <!-- Player items will be rendered here by JS -->
+                </div>
+                <button id="openAddPlayerModalBtn" class="add-player-button" title="Add New Player">
+                    + Add Player
+                </button>
+                <p id="noPlayersText" class="no-players-text" style="display: none;">No players yet. Click '+' to add.</p>
+            </div>
+
+            <div class="right-column">
+                <header class="controls-header">
+                    <div class="difficulty-control">
+                        <span class="difficulty-label">DIFFICULTY:</span>
+                        <div class="difficulty-buttons-group">
+                            <button id="decreaseDifficultyBtn">-</button>
+                            <span id="difficultyDisplay">2</span>
+                            <button id="increaseDifficultyBtn">+</button>
+                        </div>
+                    </div>
+                </header>
+
+                <div id="dicePoolDisplay" class="dice-pool-display">
+                    <!-- Dice slots will be rendered here by JS -->
+                </div>
+
+                <div id="statusMessage" class="status">Ready to roll!</div>
+
+                <div class="actions-group">
+                    <button id="rollDiceBtn" class="btn-roll roll-mode">Roll Dice</button>
+                    <div id="specialActionButtonsContainer" class="special-action-buttons-container">
+                        <button id="pushLuckBtn" style="display:none;">Push Your Luck</button>
+                        <button id="payPriceBtn" style="display:none;">Pay Price & Redo Roll</button>
+                    </div>
+        
+                </div>
+            </div>
+        </div>
+
+
+            <!-- Add Player Modal -->
+            <div id="addPlayerModal" class="modal" style="display: none;">
+                <div class="modal-content">
+                    <h2>Add New Player</h2>
+                    <div class="form-group">
+                        <label for="playerNameInput">Player Name</label>
+                        <input id="playerNameInput" type="text" />
+                    </div>
+                    <div class="form-group">
+                        <label for="playerImageInput">Profile Image (Optional)</label>
+                        <input id="playerImageInput" type="file" accept="image/*" />
+                        <div id="imagePreviewContainer" class="image-preview" style="display:none;">
+                            <img id="imagePreview" src="#" alt="Preview" />
+                        </div>
+                    </div>
+                    <div class="modal-actions">
+                        <button id="cancelAddPlayerBtn">Cancel</button>
+                        <button id="confirmAddPlayerBtn">Add Player</button>
+                    </div>
+                </div>
+            </div>
+    </div>
