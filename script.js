@@ -79,157 +79,56 @@
             const STAR_ICON = '✨';
             const USER_ICON = '👤';
 
-            // --- TIMER FUNCTIONS ---
-            function updateStrategyTimerDisplay() {
-                if (hasStrategyTimeRunOut) {
-                    strategyTimerDisplayEl.textContent = "TIME UP!";
-                    strategyTimerDisplayEl.classList.add('timed-out');
-                } else if (isStrategyTimerActive && !isTimersPaused) {
-                    strategyTimerDisplayEl.textContent = `${strategyTimerValue}s`;
-                    strategyTimerDisplayEl.classList.remove('timed-out');
-                } else if (isTimersPaused && isStrategyTimerActive) {
-                    strategyTimerDisplayEl.textContent = `${strategyTimerValue}s (Paused)`;
-                    strategyTimerDisplayEl.classList.remove('timed-out');
-                }
-                 else {
-                    strategyTimerDisplayEl.textContent = "--";
-                    strategyTimerDisplayEl.classList.remove('timed-out');
-                }
-            }
+   // state
+let strategyTime=90, strategyInterval;
+let actionLimit=3;
 
-            function stopStrategyTimer() {
-                if (strategyTimerIntervalId) {
-                    clearInterval(strategyTimerIntervalId);
-                    strategyTimerIntervalId = null;
-                }
-                // isStrategyTimerActive is set to false where appropriate (e.g. on roll, on timeout)
-            }
+// elements
+const stratDisp=     document.getElementById('strategyDisplay');
+const actDisp=       document.getElementById('actionDisplay');
+const setActInput=   document.getElementById('setActionInput');
+const pauseStratBtn= document.getElementById('pauseStrategyBtn');
+const resetStratBtn= document.getElementById('resetStrategyBtn');
+const resetActBtn=   document.getElementById('resetActionBtn');
 
-            function handleStrategyTimeOut() {
-                stopStrategyTimer();
-                isStrategyTimerActive = false;
-                hasStrategyTimeRunOut = true;
-                outcomeText = "Strategy Time Expired! Roll automatically failed.";
-                
-                // Consume an action if the counter is set
-                if (isActionCounterSet && actionCounterValue > 0) {
-                    actionCounterValue--;
-                    updateActionCounterDisplay();
-                }
-                
-                fullUIUpdate(); // This will update buttons and status
-            }
+// init
+actDisp.textContent=actionLimit;
 
-            function startStrategyTimer() {
-                if (isStrategyTimerActive || isTimersPaused || hasStrategyTimeRunOut) return;
-                if (isActionCounterSet && actionCounterValue <= 0) return; // No actions left
+// functions
+function startStrategyTimer(){
+  clearInterval(strategyInterval);
+  strategyTime=90;
+  stratDisp.textContent=strategyTime;
+  strategyInterval=setInterval(()=>{
+    stratDisp.textContent=--strategyTime;
+    if(strategyTime<=0){
+      clearInterval(strategyInterval);
+      statusMessageEl.textContent='Timer expired: auto-fail.';
+      clearAllContributionsAndStatsJS();
+    }
+  },1000);
+}
+function stopStrategyTimer(){
+  clearInterval(strategyInterval);
+}
 
-                stopStrategyTimer(); // Clear any existing interval just in case
-                strategyTimerValue = STRATEGY_TIMER_DURATION;
-                isStrategyTimerActive = true;
-                hasStrategyTimeRunOut = false; // Reset this flag
-                updateStrategyTimerDisplay();
-                timerActionButtonsContainerEl.style.display = 'flex';
+// controls
+setActInput.addEventListener('change',()=>{
+  actionLimit=Math.max(1,parseInt(setActInput.value,10));
+  actDisp.textContent=actionLimit;
+});
+resetActBtn.addEventListener('click',()=>actDisp.textContent=actionLimit);
+pauseStratBtn.addEventListener('click',stopStrategyTimer);
+resetStratBtn.addEventListener('click',startStrategyTimer);
 
-
-                strategyTimerIntervalId = setInterval(() => {
-                    if (isTimersPaused) return; // Don't count down if paused
-
-                    strategyTimerValue--;
-                    updateStrategyTimerDisplay();
-                    if (strategyTimerValue <= 0) {
-                        handleStrategyTimeOut();
-                    }
-                }, 1000);
-                fullUIUpdate(); // Update button states etc.
-            }
-            
-            function resetStrategyTimerConditions() {
-                stopStrategyTimer();
-                isStrategyTimerActive = false;
-                hasStrategyTimeRunOut = false;
-                strategyTimerValue = STRATEGY_TIMER_DURATION;
-                updateStrategyTimerDisplay();
-            }
-
-            function updateActionCounterDisplay() {
-                actionCounterDisplayEl.textContent = isActionCounterSet ? actionCounterValue : "--";
-                setActionCountInputEl.value = isActionCounterSet ? initialActionCount : '';
-            }
-
-            function handleSetActionCounter() {
-                const count = parseInt(setActionCountInputEl.value);
-                if (!isNaN(count) && count >= 0) {
-                    initialActionCount = count;
-                    actionCounterValue = count;
-                    isActionCounterSet = true;
-                    updateActionCounterDisplay();
-                    timerActionButtonsContainerEl.style.display = 'flex';
-                    // If resetting counter, and conditions allow, start strategy timer for a new challenge
-                    if (!isRolling && !hasRolledThisTurn && !isStrategyTimerActive && !hasStrategyTimeRunOut && !isTimersPaused) {
-                        tryStartStrategyTimer();
-                    }
-                    fullUIUpdate();
-                } else if (setActionCountInputEl.value.trim() === "") { // Allow clearing
-                    isActionCounterSet = false;
-                    initialActionCount = 0;
-                    actionCounterValue = 0;
-                    updateActionCounterDisplay();
-                    if (!isStrategyTimerActive && !hasStrategyTimeRunOut && !isTimersPaused) {
-                         timerActionButtonsContainerEl.style.display = 'none';
-                    }
-                    fullUIUpdate();
-                } else {
-                    alert("Please enter a valid number for the action counter.");
-                }
-            }
-
-            function modifyActionCounter(change) {
-                if (isActionCounterSet) {
-                    actionCounterValue = Math.max(0, actionCounterValue + change); // Prevent going below 0
-                    updateActionCounterDisplay();
-                }
-            }
-
-            function togglePauseTimers() {
-                isTimersPaused = !isTimersPaused;
-                pauseResumeTimersBtn.textContent = isTimersPaused ? "Resume Timers" : "Pause Timers";
-                if (isTimersPaused && isStrategyTimerActive) {
-                    // The interval itself is not cleared, it just checks isTimersPaused
-                    updateStrategyTimerDisplay(); // To show "(Paused)"
-                } else if (!isTimersPaused && isStrategyTimerActive && strategyTimerValue > 0 && !hasStrategyTimeRunOut) {
-                    // If resuming and timer was active, ensure it visually updates immediately
-                    updateStrategyTimerDisplay();
-                }
-                fullUIUpdate(); // Update button states etc.
-            }
-
-            function handleResetAllTimers() {
-                if (!confirm("Are you sure you want to reset all timers and current roll progress?")) return;
-
-                isTimersPaused = false; // Unpause if paused
-                resetStrategyTimerConditions();
-                
-                isActionCounterSet = false; // Completely reset action counter
-                initialActionCount = 0;
-                actionCounterValue = 0;
-                updateActionCounterDisplay();
-                setActionCountInputEl.value = '';
-
-                timerActionButtonsContainerEl.style.display = 'none';
-                clearAllContributionsAndStatsJS(); // This also calls fullUIUpdate
-            }
-            
-            function tryStartStrategyTimer() {
-                if (isRolling || hasRolledThisTurn || isTimersPaused || isStrategyTimerActive || hasStrategyTimeRunOut) {
-                    return;
-                }
-                if (isActionCounterSet && actionCounterValue <= 0) {
-                    // statusMessageEl.textContent = "No actions left for this challenge.";
-                    return;
-                }
-                startStrategyTimer();
-            }
+// hook into existing
+decreaseDifficultyBtn.addEventListener('click',startStrategyTimer);
+increaseDifficultyBtn.addEventListener('click',startStrategyTimer);
+rollDiceBtn.addEventListener('click',()=>{
+  stopStrategyTimer();
+  actionLimit--;
+  actDisp.textContent=actionLimit;
+});
 
             // --- UTILITY FUNCTIONS ---
             function generatePlayerColor() { /* ... (no change) ... */
