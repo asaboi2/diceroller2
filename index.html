@@ -8,14 +8,15 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@400;500;600;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        /* CSS from your previous "FANTASTIC" version */
         :root {
         --bg-primary: #f8fafc;
         --bg-secondary: #ffffff;
         --bg-tertiary: #e9eff3;
         --text-primary: #2c3e50;
         --text-secondary: #526c84;
-        --accent: #2980b9;
+        --accent: #2980b9; /* Main accent for pie fill */
+        --accent-light: #6cb2e9; /* Lighter shade for gradient */
+        --accent-timer-bar: #2991de; /* Specific color for timer bar */
         --accent-secondary: #8e44ad;
         --border: #d3e0ea;
         --success: #27ae60;
@@ -29,213 +30,128 @@
         --timer-danger: #e74c3c;
         }
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        body { /* Moved font-family here for global application */
+        body {
             font-family: 'League Spartan', 'Inter', system-ui, sans-serif;
             font-weight: 400;
             line-height: 1.6;
-            background-color: var(--bg-primary); /* Ensures body bg is set */
-            color: var(--text-primary); /* Ensures default text color */
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
             min-height: 100vh;
-        }
-        .dice-roller-app { /* Removed font properties, now on body */
-            /* background-color: var(--bg-primary); /* Already on body */
-            /* color: var(--text-primary); /* Already on body */
-            /* min-height: 100vh; /* Already on body */
         }
         .app-title-header { text-align: center; padding: 20px 0; margin-bottom: 20px; }
         .app-title-header h1 { font-size: 2.8rem; font-weight: 800; color: var(--accent); letter-spacing: 1px; text-shadow: 1px 1px 0px var(--bg-tertiary); }
         .main-layout-container { display: grid; grid-template-columns: 280px 1fr; gap: 30px; max-width: 900px; margin: 0 auto; padding: 0 20px 30px 20px; }
         .left-column { padding: 20px; background-color: var(--bg-secondary); border-radius: 12px; box-shadow: 0 4px 12px var(--shadow-light); align-self: start; }
-        .right-column { /* No specific styling */ }
-
-        header.controls-header { 
-            display: flex; 
-            justify-content: flex-end; 
-            align-items: center; 
-            margin-bottom: 25px; 
-            padding-bottom: 15px; 
-            border-bottom: 2px solid var(--accent); 
-        }
-        .difficulty-control { 
-            display: flex; /* Use flex to align label and buttons */
-            align-items: center; 
-            gap: 10px; /* Space between "DIFFICULTY:" and the buttons/value */
-            background-color: var(--bg-secondary);
-            padding: 8px 12px;
-            border-radius: 10px;
-            border: 1px solid var(--border);
-            box-shadow: 0 1px 3px var(--shadow-light);
-        }
-        .difficulty-control .difficulty-label { /* New class for the "DIFFICULTY:" text */
-            color: var(--text-secondary); 
-            font-weight: 600; 
-            font-size: 0.9rem; 
-        }
-        .difficulty-buttons-group { /* Wrapper for buttons and display */
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        #difficultyDisplay {
-            font-weight: bold;
-            font-size: 1.1rem;
-            color: var(--accent);
-            padding: 0 8px; /* Space around the number */
-            min-width: 20px; /* Ensure some space for the number */
-            text-align: center;
-        }
-        .difficulty-buttons-group button { 
-            width: 30px; height: 30px; 
-            border: 1px solid var(--border); 
-            border-radius: 8px; 
-            background-color: var(--bg-tertiary); /* Slightly different from overall bg */
-            color: var(--text-primary); 
-            font-size: 1.2rem; font-weight: bold;
-            cursor: pointer; 
-            transition: all 0.2s;
-            line-height: 1; /* For better vertical alignment of +/- */
-        }
+        
+        header.controls-header { display: flex; justify-content: flex-end; align-items: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid var(--accent); }
+        .difficulty-control { display: flex; align-items: center; gap: 10px; background-color: var(--bg-secondary); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border); box-shadow: 0 1px 3px var(--shadow-light); }
+        .difficulty-control .difficulty-label { color: var(--text-secondary); font-weight: 600; font-size: 0.9rem; }
+        .difficulty-buttons-group { display: flex; align-items: center; gap: 6px; }
+        #difficultyDisplay { font-weight: bold; font-size: 1.1rem; color: var(--accent); padding: 0 8px; min-width: 20px; text-align: center; }
+        .difficulty-buttons-group button { width: 30px; height: 30px; border: 1px solid var(--border); border-radius: 8px; background-color: var(--bg-tertiary); color: var(--text-primary); font-size: 1.2rem; font-weight: bold; cursor: pointer; transition: all 0.2s; line-height: 1; }
         .difficulty-buttons-group button:hover { background-color: var(--accent); color: white; transform: translateY(-1px); }
         .difficulty-buttons-group button:active { transform: translateY(0); }
 
-        /* Tension Timers Section */
-        .tension-timers-section {
-            margin-bottom: 25px;
-            padding: 18px;
-            background-color: var(--bg-secondary);
-            border-radius: 12px;
-            box-shadow: 0 4px 12px var(--shadow-light);
-        }
-
-        .timer-controls-row {
-            display: flex;
-            gap: 20px;
-            justify-content: space-between;
-        }
-
-        .timer-control-group {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
+        .tension-timers-section { margin-bottom: 25px; padding: 18px; background-color: var(--bg-secondary); border-radius: 12px; box-shadow: 0 4px 12px var(--shadow-light); }
+        .timer-controls-row { display: flex; gap: 20px; justify-content: space-between; }
+        .timer-control-group { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+        .timer-label { font-weight: 600; font-size: 0.85rem; color: var(--text-secondary); letter-spacing: 0.5px; }
+        
+        /* --- VISUAL TIMER STYLES --- */
+        .visual-timer-container {
+            position: relative; /* For overlaying text */
+            display: flex; /* For centering text */
             align-items: center;
-            gap: 8px;
-        }
-
-        .timer-label {
-            font-weight: 600;
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            letter-spacing: 0.5px;
-        }
-
-        .timer-display {
-            font-size: 2.2rem;
-            font-weight: 800;
-            color: var(--accent);
-            padding: 8px 16px;
+            justify-content: center;
             background-color: var(--bg-tertiary);
             border-radius: 8px;
             border: 2px solid var(--border);
-            min-width: 80px;
-            text-align: center;
-            transition: all 0.3s ease;
+            min-width: 80px; /* From original .timer-display */
+            height: 50px; /* Example height, adjust as needed */
+            overflow: hidden; /* For rounded corners on fill */
         }
-
-        .timer-display.warning {
-            color: var(--timer-warning);
-            border-color: var(--timer-warning);
-            background-color: rgba(243, 156, 18, 0.1);
+        .timer-text-content, .countdown-text-content {
+            font-size: 2.2rem; /* From original .timer-display */
+            font-weight: 800; /* From original .timer-display */
+            color: var(--accent); /* From original .timer-display */
+            position: relative; /* To ensure it's above the bar/pie */
+            z-index: 2;
+            line-height: 1; /* Helps with vertical centering */
         }
-
-        .timer-display.danger {
-            color: var(--timer-danger);
-            border-color: var(--timer-danger);
-            background-color: rgba(231, 76, 60, 0.1);
-            animation: pulse 1s infinite;
+        
+        /* Tension Timer Bar */
+        .timer-bar-track {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: transparent; /* Track is part of .visual-timer-container bg */
+            border-radius: 6px; /* Inner radius */
         }
+        .timer-bar-fill {
+            height: 100%;
+            width: 100%; /* Default to full, JS will adjust */
+            background: linear-gradient(90deg, var(--accent-light), var(--accent-timer-bar));
+            border-radius: 6px;
+            transition: width 0.2s linear, background-color 0.3s ease; /* Smooth width and color change */
+            z-index: 1;
+        }
+        .visual-timer-container.warning .timer-bar-fill {
+            background: linear-gradient(90deg, #f9d689, var(--timer-warning));
+        }
+        .visual-timer-container.warning .timer-text-content { color: var(--timer-warning); }
 
-        @keyframes pulse {
+        .visual-timer-container.danger .timer-bar-fill {
+            background: linear-gradient(90deg, #f5b7b1, var(--timer-danger));
+            animation: pulse-bg 1s infinite;
+        }
+         .visual-timer-container.danger .timer-text-content { color: var(--timer-danger); }
+
+
+        @keyframes pulse-bg { /* For bar background pulsing */
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.15); }
+        }
+        @keyframes pulse { /* For text pulsing (original, keep if needed elsewhere or combine) */
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.05); }
         }
 
-        .timer-buttons {
-            display: flex;
-            gap: 6px;
+        /* Countdown Clock Pie */
+        .countdown-pie-svg {
+            width: 40px; /* SVG size */
+            height: 40px;
+            position: absolute; /* Centered by parent's flex */
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1;
         }
-
-        .timer-btn {
-            padding: 6px 12px;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            background-color: var(--bg-tertiary);
-            color: var(--text-primary);
-            font-size: 0.8rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
+        .countdown-pie-track, .countdown-pie-fill {
+            fill: transparent;
+            stroke-linecap: round; /* Optional: for rounded ends of the stroke */
         }
-
-        .timer-btn:hover {
-            background-color: var(--accent);
-            color: white;
-            transform: translateY(-1px);
+        .countdown-pie-track {
+            stroke: var(--border); /* Light track color */
+            stroke-width: 5; /* Width of the track */
         }
-
-        .timer-btn:active {
-            transform: translateY(0);
+        .countdown-pie-fill {
+            stroke: var(--accent); /* Fill color */
+            stroke-width: 5; /* Width of the fill, can be same or slightly larger */
+            transition: stroke-dashoffset 0.3s ease-in-out;
         }
+        /* --- END VISUAL TIMER STYLES --- */
+        
+        .timer-buttons { display: flex; gap: 6px; }
+        .timer-btn { padding: 6px 12px; border: 1px solid var(--border); border-radius: 6px; background-color: var(--bg-tertiary); color: var(--text-primary); font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .timer-btn:hover { background-color: var(--accent); color: white; transform: translateY(-1px); }
+        .timer-btn:active { transform: translateY(0); }
+        
+        .countdown-control { display: flex; align-items: center; gap: 10px; }
+        .countdown-buttons-group { display: flex; align-items: center; gap: 6px; }
+        /* Original .countdown-display styles are now handled by .visual-timer-container and .countdown-text-content */
+        .countdown-buttons-group button { width: 30px; height: 30px; border: 1px solid var(--border); border-radius: 8px; background-color: var(--bg-tertiary); color: var(--text-primary); font-size: 1.2rem; font-weight: bold; cursor: pointer; transition: all 0.2s; line-height: 1; }
+        .countdown-buttons-group button:hover { background-color: var(--accent); color: white; transform: translateY(-1px); }
+        .countdown-buttons-group button:active { transform: translateY(0); }
 
-        .countdown-control {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .countdown-buttons-group {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .countdown-display {
-            font-size: 2.2rem;
-            font-weight: 800;
-            color: var(--accent);
-            padding: 8px 16px;
-            background-color: var(--bg-tertiary);
-            border-radius: 8px;
-            border: 2px solid var(--border);
-            min-width: 60px;
-            text-align: center;
-        }
-
-        .countdown-buttons-group button {
-            width: 30px;
-            height: 30px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            background-color: var(--bg-tertiary);
-            color: var(--text-primary);
-            font-size: 1.2rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s;
-            line-height: 1;
-        }
-
-        .countdown-buttons-group button:hover {
-            background-color: var(--accent);
-            color: white;
-            transform: translateY(-1px);
-        }
-
-        .countdown-buttons-group button:active {
-            transform: translateY(0);
-        }
-
-        /* ... (rest of your existing CSS, unchanged) ... */
-        .right-column h2 { font-size: 1.5rem; color: var(--accent); margin-bottom: 18px; padding-bottom: 10px; font-weight: 600; border-bottom: 1px solid var(--border); }
         .dice-pool-display { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 25px; padding: 18px; background-color: var(--bg-secondary); border-radius: 12px; min-height: 74px; box-shadow: 0 4px 12px var(--shadow-light); align-items: center; justify-content: center; }
         .dice-slot { width: 56px; height: 56px; border-radius: 10px; display: flex; align-items: center; justify-content: center; position: relative; background-color: var(--bg-tertiary); overflow: hidden; transition: transform 0.2s ease-out; }
         .dice-slot:hover { transform: scale(1.05); }
@@ -347,7 +263,12 @@
             <!-- Tension Timer (Strategy Timer) -->
             <div class="timer-control-group">
               <div class="timer-label">TENSION TIMER</div>
-              <div class="timer-display" id="tensionTimerDisplay">16s</div>
+              <div class="visual-timer-container" id="tensionTimerVisualContainer">
+                  <div class="timer-bar-track">
+                      <div id="tensionTimerBarFill" class="timer-bar-fill"></div>
+                  </div>
+                  <span id="tensionTimerText" class="timer-text-content">16s</span>
+              </div>
               <div class="timer-buttons">
                 <button id="startTensionTimerBtn" class="timer-btn">START</button>
                 <button id="pauseTensionTimerBtn" class="timer-btn" style="display: none;">PAUSE</button>
@@ -357,13 +278,19 @@
 
             <!-- Countdown Clock (Action Counter) -->
             <div class="timer-control-group">
-              <div class="timer-label">TURNS LEFT</div>
+              <div class="timer-label">COUNTDOWN CLOCK</div>
               <div class="countdown-control">
-                <div class="countdown-buttons-group">
-                  <button id="decreaseCountdownBtn">-</button>
-                  <span id="countdownDisplay" class="countdown-display">3</span>
-                  <button id="increaseCountdownBtn">+</button>
-                </div>
+                  <div class="visual-timer-container" id="countdownVisualContainer">
+                      <svg class="countdown-pie-svg" viewBox="0 0 40 40">
+                          <circle class="countdown-pie-track" cx="20" cy="20" r="18"></circle>
+                          <circle id="countdownPieFill" class="countdown-pie-fill" cx="20" cy="20" r="18" transform="rotate(-90 20 20)"></circle>
+                      </svg>
+                      <span id="countdownText" class="countdown-text-content">3</span>
+                  </div>
+                  <div class="countdown-buttons-group" style="flex-direction: column; margin-left: 10px;"> <!-- Adjusted for space -->
+                    <button id="increaseCountdownBtn" style="width:36px; height:25px; font-size: 1rem;">+</button> <!-- Smaller buttons -->
+                    <button id="decreaseCountdownBtn" style="width:36px; height:25px; font-size: 1rem;">-</button>
+                  </div>
               </div>
               <button id="resetCountdownBtn" class="timer-btn">RESET</button>
             </div>
@@ -408,47 +335,46 @@
   <script>
     // --- GLOBAL STATE & CONFIG ---
     let difficulty = 2;
-    let expertise = 0; // How many dice are in the pool
-    let specialMoves = 0; // How many special moves are committed
-    let rolls = []; // Stores the results of dice rolls: [5, 2, 6]
+    let expertise = 0; 
+    let specialMoves = 0; 
+    let rolls = []; 
     let outcomeText = "";
-    let isRolling = false; // True if dice animation is in progress
-    let hasRolledThisTurn = false; // True if a roll (or special move resolution) has completed
-    let canPushLuck = false; // True if a 6 was rolled and player can push luck
-    let canPayPrice = false; // True if a 1 was rolled and player can pay price
-    let pushedLuckDieRoll = null; // Stores the result of the "push your luck" die
-    let isRedoingRollAfterPrice = false; // True if player is redoing a roll after paying price
-    let indexOfRollToRedo = -1; // Index of the die in 'rolls' array to be re-rolled
+    let isRolling = false; 
+    let hasRolledThisTurn = false; 
+    let canPushLuck = false; 
+    let canPayPrice = false; 
+    let pushedLuckDieRoll = null; 
+    let isRedoingRollAfterPrice = false; 
+    let indexOfRollToRedo = -1; 
 
-    let players = []; // Array of player objects: { id, name, image, contributedDice, contributedSpecialMoves, color }
-    let diceContributions = []; // Array of player IDs who contributed dice, in order of contribution
-    let specialMoveContributions = []; // Array of player IDs who contributed special moves, in order
+    let players = []; 
+    let diceContributions = []; 
+    let specialMoveContributions = []; 
 
-    let uploadedImage = null; // Temp store for uploaded player image data URL
+    let uploadedImage = null; 
 
-    // Animation sequence state
-    let currentRollIndex = null; // Index of the die currently being animated/rolled
-    let currentAnimatedValue = null; // The value shown during animation
-    let sequenceChainTimeoutId = null; // Timeout ID for managing sequential die rolls
-    let currentSequenceTotalDice = 0; // Total dice in the current rolling sequence
+    let currentRollIndex = null; 
+    let currentAnimatedValue = null; 
+    let sequenceChainTimeoutId = null; 
+    let currentSequenceTotalDice = 0; 
 
-    // Player Color Generation
     let nextPlayerHue = 0;
     const HUE_INCREMENT = 37; 
-    const SATURATION = 70; // %
-    const LIGHTNESS = 55; // %
+    const SATURATION = 70; 
+    const LIGHTNESS = 55; 
 
-    // Tension Timer state
     let tensionTimerInterval = null;
     let isTensionTimerRunning = false;
     let tensionTimerStartTime = 0; 
     let tensionTimerPausedTime = 0; 
     let tensionTimerSeconds; 
 
-    // Countdown Clock state
     let countdownClock = 3; 
+    const COUNTDOWN_PIE_MAX_VALUE = 6; // Denominator for pie chart visualization
+    const PIE_RADIUS = 18; // SVG circle radius for pie chart
+    const PIE_CIRCUMFERENCE = 2 * Math.PI * PIE_RADIUS;
 
-    // Animation Constants
+
     const SINGLE_DIE_ANIMATION_FRAMES = 12; 
     const SINGLE_DIE_ANIMATION_INTERVAL = 60; 
     const SINGLE_DIE_POST_ANIMATION_PAUSE = 350; 
@@ -456,7 +382,6 @@
     const DELAY_INCREMENT_PER_DIE = 75; 
 
     document.addEventListener('DOMContentLoaded', () => {
-        // --- DOM ELEMENT GRABBERS & CONSTANTS ---
         const dicePoolDisplayEl = document.getElementById('dicePoolDisplay');
         const playerListEl = document.getElementById('playerList');
         const noPlayersTextEl = document.getElementById('noPlayersText');
@@ -466,24 +391,26 @@
         const payPriceBtn = document.getElementById('payPriceBtn');
         const openAddPlayerModalBtn = document.getElementById('openAddPlayerModalBtn');
 
-        // Difficulty controls
         const difficultyDisplay = document.getElementById('difficultyDisplay');
         const decreaseDifficultyBtn = document.getElementById('decreaseDifficultyBtn');
         const increaseDifficultyBtn = document.getElementById('increaseDifficultyBtn');
 
-        // Tension Timer elements
-        const tensionTimerDisplay = document.getElementById('tensionTimerDisplay');
+        // --- MODIFIED: Timer display elements ---
+        const tensionTimerVisualContainer = document.getElementById('tensionTimerVisualContainer');
+        const tensionTimerTextEl = document.getElementById('tensionTimerText');
+        const tensionTimerBarFillEl = document.getElementById('tensionTimerBarFill');
         const startTensionTimerBtn = document.getElementById('startTensionTimerBtn');
         const pauseTensionTimerBtn = document.getElementById('pauseTensionTimerBtn');
         const resetTensionTimerBtn = document.getElementById('resetTensionTimerBtn');
 
-        // Countdown Clock elements (from provided snippet)
-        const countdownDisplay = document.getElementById('countdownDisplay');
+        const countdownVisualContainer = document.getElementById('countdownVisualContainer');
+        const countdownTextEl = document.getElementById('countdownText');
+        const countdownPieFillEl = document.getElementById('countdownPieFill');
         const decreaseCountdownBtn = document.getElementById('decreaseCountdownBtn');
         const increaseCountdownBtn = document.getElementById('increaseCountdownBtn');
         const resetCountdownBtn = document.getElementById('resetCountdownBtn');
+        // --- END MODIFIED ---
 
-        // Add Player Modal elements (from provided snippet)
         const addPlayerModalEl = document.getElementById('addPlayerModal');
         const playerNameInput = document.getElementById('playerNameInput');
         const playerImageInput = document.getElementById('playerImageInput');
@@ -492,24 +419,27 @@
         const cancelAddPlayerBtn = document.getElementById('cancelAddPlayerBtn');
         const confirmAddPlayerBtn = document.getElementById('confirmAddPlayerBtn');
 
-        // Icons (from provided snippet)
         const DICE_ICON = '🎲';
         const STAR_ICON = '✨';
         const USER_ICON = '👤';
 
 
-        // --- CORE LOGIC & FUNCTIONS ---
         function generatePlayerColor() {
             const hue = nextPlayerHue;
             nextPlayerHue = (nextPlayerHue + HUE_INCREMENT) % 360;
             return `hsl(${hue}, ${SATURATION}%, ${LIGHTNESS}%)`;
         }
 
-        // Timer functions
         function calculateTensionTimerDuration() {
-            return Math.max(1, difficulty) * 8; // 8 seconds per difficulty point
+            if (difficulty <= 0) return 0; 
+            let secondsPerDie = 8.0;
+            if (difficulty > 1) secondsPerDie -= (difficulty - 1) * 0.5;
+            secondsPerDie = Math.ceil(secondsPerDie);
+            secondsPerDie = Math.max(3, secondsPerDie);
+            return secondsPerDie * difficulty;
         }
 
+        // --- MODIFIED: updateTensionTimerDisplay for VISUALS ---
         function updateTensionTimerDisplay() {
             const totalSeconds = calculateTensionTimerDuration();
             const minutes = Math.floor(tensionTimerSeconds / 60);
@@ -521,57 +451,69 @@
             } else {
                 displayText = `${seconds}s`;
             }
+            tensionTimerTextEl.textContent = displayText;
+
+            let fillPercentage = 0;
+            if (totalSeconds > 0) {
+                fillPercentage = Math.max(0, (tensionTimerSeconds / totalSeconds) * 100);
+            } else if (tensionTimerSeconds <= 0) { // if total is 0 and current is 0, bar is empty
+                 fillPercentage = 0;
+            } else { // If total is 0 but somehow current isn't (should not happen with new calc), show full.
+                 fillPercentage = 100;
+            }
+            tensionTimerBarFillEl.style.width = `${fillPercentage}%`;
             
-            tensionTimerDisplay.textContent = displayText;
-            
-            // Color coding based on remaining time
-            tensionTimerDisplay.classList.remove('warning', 'danger');
-            const percentRemaining = tensionTimerSeconds / totalSeconds;
-            
-            if (tensionTimerSeconds <= 0 && totalSeconds > 0) { // Ensure totalSeconds is not zero to avoid NaN with 0/0
-                 tensionTimerDisplay.classList.add('danger');
-            } else if (percentRemaining <= 0.25) {
-                tensionTimerDisplay.classList.add('danger');
-            } else if (percentRemaining <= 0.5) {
-                tensionTimerDisplay.classList.add('warning');
+            tensionTimerVisualContainer.classList.remove('warning', 'danger');
+            if (totalSeconds > 0) {
+                const percentRemaining = tensionTimerSeconds / totalSeconds;
+                if (tensionTimerSeconds <= 0) {
+                    tensionTimerVisualContainer.classList.add('danger');
+                } else if (percentRemaining <= 0.25) {
+                    tensionTimerVisualContainer.classList.add('danger');
+                } else if (percentRemaining <= 0.5) {
+                    tensionTimerVisualContainer.classList.add('warning');
+                }
+            } else { // If totalSeconds is 0, ensure bar is empty and no warning/danger
+                 tensionTimerBarFillEl.style.width = '0%';
             }
         }
 
         function startTensionTimer() {
             if (isTensionTimerRunning) return;
-            
+            const totalDurationForThisRun = calculateTensionTimerDuration();
+            if (totalDurationForThisRun <= 0) {
+                tensionTimerSeconds = 0;
+                tensionTimerPausedTime = 0;
+                isTensionTimerRunning = false;
+                if (tensionTimerInterval) clearInterval(tensionTimerInterval);
+                updateTensionTimerDisplay();
+                startTensionTimerBtn.style.display = 'inline-block';
+                pauseTensionTimerBtn.style.display = 'none';
+                return;
+            }
             isTensionTimerRunning = true;
             tensionTimerStartTime = Date.now() - tensionTimerPausedTime;
-            
             tensionTimerInterval = setInterval(() => {
                 const elapsed = Math.floor((Date.now() - tensionTimerStartTime) / 1000);
-                const totalSeconds = calculateTensionTimerDuration();
-                tensionTimerSeconds = Math.max(0, totalSeconds - elapsed);
-                
+                tensionTimerSeconds = Math.max(0, totalDurationForThisRun - elapsed);
                 updateTensionTimerDisplay();
-                
                 if (tensionTimerSeconds <= 0) {
-                    // Timer expired - auto-fail
                     pauseTensionTimer();
                     outcomeText = "Time's up! Auto-fail due to tension timer expiring.";
-                    hasRolledThisTurn = true; // Mark turn as 'rolled' for reset purposes
-                    isRolling = false; // Ensure rolling state is false
-                    // Potentially trigger other game logic for auto-fail here
-                    fullUIUpdate(); // Update UI to reflect timer expiry and message
+                    hasRolledThisTurn = true; 
+                    isRolling = false; 
+                    fullUIUpdate(); 
                 }
-            }, 100); // Check more frequently for smoother countdown
-            
+            }, 100);
             startTensionTimerBtn.style.display = 'none';
             pauseTensionTimerBtn.style.display = 'inline-block';
         }
 
         function pauseTensionTimer() {
             if (!isTensionTimerRunning) return;
-            
             isTensionTimerRunning = false;
             clearInterval(tensionTimerInterval);
             tensionTimerPausedTime = Date.now() - tensionTimerStartTime;
-            
             startTensionTimerBtn.style.display = 'inline-block';
             pauseTensionTimerBtn.style.display = 'none';
         }
@@ -583,19 +525,38 @@
             updateTensionTimerDisplay();
         }
 
+        // --- MODIFIED: updateCountdownDisplay for VISUALS ---
         function updateCountdownDisplay() {
-            countdownDisplay.textContent = countdownClock;
+            countdownTextEl.textContent = countdownClock;
+
+            // Update Pie Chart
+            const fillPercentage = Math.min(1, Math.max(0, countdownClock / COUNTDOWN_PIE_MAX_VALUE));
+            const offset = PIE_CIRCUMFERENCE * (1 - fillPercentage);
+            countdownPieFillEl.style.strokeDasharray = `${PIE_CIRCUMFERENCE}`;
+            countdownPieFillEl.style.strokeDashoffset = `${offset}`;
+
+            // Optional: Change color based on value if desired
+            if (countdownClock <= 1) {
+                countdownPieFillEl.style.stroke = 'var(--timer-danger)';
+                countdownTextEl.style.color = 'var(--timer-danger)';
+            } else if (countdownClock <= COUNTDOWN_PIE_MAX_VALUE / 2) {
+                countdownPieFillEl.style.stroke = 'var(--timer-warning)';
+                countdownTextEl.style.color = 'var(--timer-warning)';
+            } else {
+                countdownPieFillEl.style.stroke = 'var(--accent)';
+                countdownTextEl.style.color = 'var(--accent)';
+            }
         }
 
         function adjustCountdownClock(amount) {
-            if (isRolling || hasRolledThisTurn) return; // Prevent adjustment during/after roll until reset
-            countdownClock = Math.max(0, countdownClock + amount);
+            if (isRolling || hasRolledThisTurn) return;
+            countdownClock = Math.max(0, countdownClock + amount); // No theoretical upper limit here for the value
             updateCountdownDisplay();
         }
 
         function resetCountdownClock() {
-            if (isRolling || hasRolledThisTurn) return; // Prevent reset during/after roll until main reset
-            countdownClock = 3; // Or a configurable default
+            if (isRolling || hasRolledThisTurn) return;
+            countdownClock = 3; 
             updateCountdownDisplay();
         }
 
@@ -832,7 +793,7 @@
             } else if (outcomeText) {
                 msg = outcomeText;
                  if (rolls.length > 0 && !isRolling && !isRedoingRollAfterPrice) {
-                     msg += ` (XP: ${rolls.length * 10})`; // XP is awarded for each die rolled
+                     msg += ` (XP: ${rolls.length * 10})`; 
                      if(pushedLuckDieRoll !== null) msg += ` (Pushed Luck Die: ${pushedLuckDieRoll})`;
                  }
             } else if (currentDicePool === 0 && difficulty > 0 && numSMCovers < difficulty) {
@@ -856,14 +817,14 @@
                 rollDiceBtn.classList.add('reset-mode');
             } else if (isRedoingRollAfterPrice) {
                 rollDiceBtn.textContent = "Redo Failed Roll";
-                rollDiceBtn.disabled = isRolling; // Disable while re-roll animation is happening
+                rollDiceBtn.disabled = isRolling; 
                 rollDiceBtn.classList.add('roll-mode');
             } else {
                 rollDiceBtn.textContent = isRolling ? "Rolling..." : "Roll Dice";
                 rollDiceBtn.disabled =
-                    (difficulty > 0 && currentDicePool === 0 && numSMCovers < difficulty) || // Cannot roll if no dice and SM don't cover
-                    isRolling || // Cannot roll if already rolling
-                    expertise < getNumPrimarySlotsForExpertiseOrEmpty(); // Cannot roll if not enough expertise for non-SM slots
+                    (difficulty > 0 && currentDicePool === 0 && numSMCovers < difficulty) || 
+                    isRolling || 
+                    expertise < getNumPrimarySlotsForExpertiseOrEmpty(); 
                 rollDiceBtn.classList.add('roll-mode');
             }
             pushLuckBtn.style.display = canPushLuck ? 'inline-block' : 'none';
@@ -872,15 +833,13 @@
 
         function updateDifficultyDisplay() {
             difficultyDisplay.textContent = difficulty;
-            // Update tension timer duration when difficulty changes if timer not running
-            if (!isTensionTimerRunning) {
-                 tensionTimerSeconds = calculateTensionTimerDuration();
-                 updateTensionTimerDisplay();
+            if (!isTensionTimerRunning) { 
+                 resetTensionTimer(); 
             }
         }
 
         function determineSingleDieOpportunity(die) {
-             if (!canPushLuck && !canPayPrice) { // Only trigger if no opportunity is currently active
+             if (!canPushLuck && !canPayPrice) { 
                 if (die === 6) {
                     canPushLuck = true;
                 } else if (die === 1) {
@@ -890,47 +849,40 @@
         }
 
         function finalizeOverallOutcome(diceArray) {
-            outcomeText = ""; // Clear previous outcome
-            // Stop tension timer when rolling is complete (if it was running)
+            outcomeText = ""; 
             if (isTensionTimerRunning) {
                 pauseTensionTimer();
             }
             
-            // If an opportunity (push luck/pay price) is active, or redoing, or pushed luck already happened, don't finalize yet.
             if (canPushLuck || canPayPrice || isRedoingRollAfterPrice || pushedLuckDieRoll !== null) {
                  if(!canPushLuck && !canPayPrice && !isRedoingRollAfterPrice && pushedLuckDieRoll !== null) {
-                     // This case is when pushedLuckDieRoll is set and no other opportunities exist, meaning outcome is already determined by push luck.
-                     // The outcomeText for pushed luck is set in handlePushLuck.
                  } else {
-                    return; // Don't determine final outcome yet.
+                    return; 
                  }
             }
 
-             // Case: Difficulty covered by special moves, no dice rolled.
              if (diceArray.length === 0 && getDicePool() === 0 && getNumSpecialMovesVisuallyCoveringSlots() >= difficulty && difficulty > 0) {
                  outcomeText = "Success! Difficulty covered by special moves, no roll needed.";
                  return;
              }
 
-             // Case: No dice were available to roll, and SM didn't cover.
              if (diceArray.length === 0 && getDicePool() === 0 && !(getNumSpecialMovesVisuallyCoveringSlots() >= difficulty && difficulty > 0)) {
-                if (hasRolledThisTurn) { //This implies an attempt was made but no dice were there.
+                if (hasRolledThisTurn) { 
                    outcomeText = "No dice rolled. Outcome determined by situation or requires dice."; return;
-                } else { // No attempt made yet, so no outcome.
+                } else { 
                     return;
                 }
              }
              
-             if (diceArray.length === 0) return; // Should not happen if previous checks are correct, but safety.
+             if (diceArray.length === 0) return; 
 
             const highest = Math.max(...diceArray);
             if (highest === 6 && !diceArray.includes(1)) outcomeText = "Success! The goal is achieved, cleanly.";
             else if (highest === 6 && diceArray.includes(1)) outcomeText = "Critical Success with a major complication (6 and 1)!";
             else if (highest === 1) outcomeText = "Failure! Face consequences, loss, or harm.";
-            else if (highest <= 3) outcomeText = "Failure with a silver lining (2-3)"; // Highest is 2 or 3
-            else outcomeText = "Success with a complication (4-5)"; // Highest is 4 or 5
+            else if (highest <= 3) outcomeText = "Failure with a silver lining (2-3)"; 
+            else outcomeText = "Success with a complication (4-5)"; 
             
-            // Decrement countdown clock after each roll attempt (if it's positive)
             if (countdownClock > 0) {
                 countdownClock--;
                 updateCountdownDisplay();
@@ -938,12 +890,12 @@
         }
 
         function fullUIUpdate() {
-            updateDifficultyDisplay(); // This will also init tensionTimerSeconds if not running
+            updateDifficultyDisplay(); 
             renderDicePool();
             renderPlayerList();
             updateActionButtons();
             updateStatusMessage();
-            updateTensionTimerDisplay(); // Ensure it's up-to-date
+            updateTensionTimerDisplay(); 
             updateCountdownDisplay();
         }
 
@@ -1015,65 +967,53 @@
             indexOfRollToRedo = -1;
             currentSequenceTotalDice = 0;
             
-            // Reset tension timer
-            resetTensionTimer(); // This will also update its display.
-            // Countdown clock is not reset here, it's a separate persistent counter.
+            resetTensionTimer(); 
             fullUIUpdate();
         }
 
         function handlePushLuck() {
             if (!canPushLuck) return;
-
-            if (sequenceChainTimeoutId) clearTimeout(sequenceChainTimeoutId); // Stop any pending next die roll
+            if (sequenceChainTimeoutId) clearTimeout(sequenceChainTimeoutId); 
             sequenceChainTimeoutId = null;
-
             pushedLuckDieRoll = Math.floor(Math.random() * 6) + 1;
-            canPushLuck = false; // Opportunity used
+            canPushLuck = false; 
             if (pushedLuckDieRoll <= 3) {
                 outcomeText = "Push Your Luck Failed! Original success potentially undone, complication added.";
             } else {
                 outcomeText = "Push Your Luck Succeeded! Advantage pressed further.";
             }
-            // Don't add to `rolls` array, it's a separate event modifying the outcome of the `rolls`.
-            // If it was a 6 or 1, adjust countdown clock
-            if (pushedLuckDieRoll === 6 && countdownClock < 99) { // Assuming 99 is max for countdown
+            if (pushedLuckDieRoll === 6 && countdownClock < 99) { 
                  countdownClock++;
                  outcomeText += " (+1 to Countdown Clock)";
             } else if (pushedLuckDieRoll === 1 && countdownClock > 0) {
                  countdownClock--;
                  outcomeText += " (-1 to Countdown Clock)";
             }
-
-
-            isRolling = false; // Rolling sequence (if any) is definitely over or interrupted.
-            hasRolledThisTurn = true; // The turn is now fully resolved.
+            isRolling = false; 
+            hasRolledThisTurn = true; 
             fullUIUpdate();
         }
 
          function handlePayPrice() {
             if (!canPayPrice) return;
             const pricePaidDescription = prompt("Describe the price you pay (e.g., lose supplies, take stress, alert enemies):");
-            if (pricePaidDescription === null) return; // User cancelled
+            if (pricePaidDescription === null) return; 
             if (pricePaidDescription.trim() === "") {
                 alert("You must describe a price to pay.");
                 return;
             }
-
-            if (sequenceChainTimeoutId) clearTimeout(sequenceChainTimeoutId); // Stop any pending next die roll
+            if (sequenceChainTimeoutId) clearTimeout(sequenceChainTimeoutId); 
             sequenceChainTimeoutId = null;
-
-            canPayPrice = false; // Opportunity used
+            canPayPrice = false; 
             isRedoingRollAfterPrice = true;
-            if(indexOfRollToRedo === -1) { // Should have been set by determineSingleDieOpportunity via processNextDieInSequence
+            if(indexOfRollToRedo === -1) { 
                  alert("Error: Could not identify which roll to redo. Resetting.");
                  clearAllContributionsAndStatsJS();
                  return;
             }
             outcomeText = `Price Paid: ${pricePaidDescription}. Redo the roll of 1.`;
-            pushedLuckDieRoll = null; // Clear any pushed luck attempt if one was pending (shouldn't happen)
-            isRolling = false; // Not actively rolling the main sequence anymore
-            // hasRolledThisTurn remains true or becomes true because an action is taken.
-            // The actual "re-roll" will happen when user clicks "Roll Dice" button again (now in redo mode).
+            pushedLuckDieRoll = null; 
+            isRolling = false; 
             fullUIUpdate();
         }
 
@@ -1082,72 +1022,55 @@
                 clearAllContributionsAndStatsJS();
                 return;
             }
-
-            // Stop tension timer when roll button is pressed (if it was running)
             if (isTensionTimerRunning) {
                 pauseTensionTimer();
             }
-
             if (isRedoingRollAfterPrice) {
                 if (indexOfRollToRedo === -1) {
                     alert("Error: Cannot redo roll, index invalid.");
                     isRedoingRollAfterPrice = false; fullUIUpdate(); return;
                 }
-                isRolling = true; // Now we are actively rolling for the redo
-                outcomeText = ""; // Clear the "Price Paid" message for the rolling phase
+                isRolling = true; 
+                outcomeText = ""; 
                 currentAnimatedValue = null;
-                currentRollIndex = indexOfRollToRedo; // Target the specific die
-                renderDicePool(); // Show waiting state for the target die
-
+                currentRollIndex = indexOfRollToRedo; 
+                renderDicePool(); 
                 let animationCounter = 0;
                 const animationIntervalId = setInterval(() => {
                     currentAnimatedValue = Math.floor(Math.random() * 6) + 1;
-                    renderDicePool(); // Update with animation frame
+                    renderDicePool(); 
                     animationCounter++;
                     if (animationCounter >= SINGLE_DIE_ANIMATION_FRAMES) {
                         clearInterval(animationIntervalId);
                         const newDieRoll = Math.floor(Math.random() * 6) + 1;
-                        rolls[indexOfRollToRedo] = newDieRoll; // Update the specific roll
+                        rolls[indexOfRollToRedo] = newDieRoll; 
                         currentAnimatedValue = newDieRoll;
-                        renderDicePool(); // Show final result of the re-rolled die
-
-                        // Adjust countdown clock based on the re-rolled die
+                        renderDicePool(); 
                         if (newDieRoll === 6 && countdownClock < 99) countdownClock++;
                         else if (newDieRoll === 1 && countdownClock > 0) countdownClock--;
-                        // No updateCountdownDisplay() here, will be done in fullUIUpdate
-
                         const redoDisplayPauseTimeout = setTimeout(() => {
-                            currentAnimatedValue = null; // Clear animation value
+                            currentAnimatedValue = null; 
                             isRolling = false;
-                            isRedoingRollAfterPrice = false; // Redo is complete
-
-                            determineSingleDieOpportunity(newDieRoll); // Check if the new roll creates another opportunity
-
+                            isRedoingRollAfterPrice = false; 
+                            determineSingleDieOpportunity(newDieRoll); 
                             if (canPushLuck || canPayPrice) {
-                                // New opportunity arose from the re-roll
-                                hasRolledThisTurn = true; // The "turn" involving this die is complete for now
-                                if(canPayPrice) indexOfRollToRedo = currentRollIndex; // Set for potential next redo
+                                hasRolledThisTurn = true; 
+                                if(canPayPrice) indexOfRollToRedo = currentRollIndex; 
                                 fullUIUpdate();
                             } else {
-                                // No new opportunity, continue original sequence or finalize
                                 const dieSlotThatWasRedone = indexOfRollToRedo;
-                                indexOfRollToRedo = -1; // Clear redo index
-                                outcomeText = ""; // Clear any intermediate messages
-
+                                indexOfRollToRedo = -1; 
+                                outcomeText = ""; 
                                 const nextDieInOriginalSequence = dieSlotThatWasRedone + 1;
-
                                 if (nextDieInOriginalSequence < currentSequenceTotalDice) {
-                                    // There were more dice in the original sequence
-                                    isRolling = true; // Resume rolling sequence
-                                    fullUIUpdate(); // Update status to "Rolling..."
-
+                                    isRolling = true; 
+                                    fullUIUpdate(); 
                                     sequenceChainTimeoutId = setTimeout(() => {
-                                        if(isRolling) { // Check if still in rolling state (e.g. user didn't reset)
+                                        if(isRolling) { 
                                             processNextDieInSequence(nextDieInOriginalSequence, currentSequenceTotalDice);
                                         }
-                                    }, SINGLE_DIE_POST_ANIMATION_PAUSE / 2); // Shorter delay to resume
+                                    }, SINGLE_DIE_POST_ANIMATION_PAUSE / 2); 
                                 } else {
-                                    // Re-rolled die was the last one in sequence
                                     finalizeOverallOutcome(rolls);
                                     hasRolledThisTurn = true;
                                     fullUIUpdate();
@@ -1158,128 +1081,104 @@
                 }, SINGLE_DIE_ANIMATION_INTERVAL);
                 return;
             }
-
             const currentDicePool = getDicePool();
             const numSMCovers = getNumSpecialMovesVisuallyCoveringSlots();
-             if (currentDicePool === 0) { // No expertise dice
-                if (difficulty > 0 && numSMCovers >= difficulty) { // SM cover difficulty
+             if (currentDicePool === 0) { 
+                if (difficulty > 0 && numSMCovers >= difficulty) { 
                      outcomeText = "Success! Difficulty covered by special moves, no roll needed.";
-                     finalizeOverallOutcome([]); // Pass empty array as no dice rolled
+                     finalizeOverallOutcome([]); 
                      hasRolledThisTurn = true;
-                } else if (difficulty > 0 && numSMCovers < difficulty) { // SM not enough, no dice
+                } else if (difficulty > 0 && numSMCovers < difficulty) { 
                     outcomeText = "Cannot roll: Need more expertise or special moves for this difficulty.";
-                    hasRolledThisTurn = false; // No roll attempt made
-                } else { // Difficulty is 0
+                    hasRolledThisTurn = false; 
+                } else { 
                     outcomeText = "Difficulty is 0, automatic success assumed. No roll needed.";
                      finalizeOverallOutcome([]);
                      hasRolledThisTurn = true;
                 }
                 isRolling = false; fullUIUpdate(); return;
             }
-            // Check if enough expertise dice for non-SM covered slots
             if (expertise < getNumPrimarySlotsForExpertiseOrEmpty()) {
                 outcomeText = `Cannot roll: Need ${getNumPrimarySlotsForExpertiseOrEmpty() - expertise} more expertise.`;
                 hasRolledThisTurn = false;
                 isRolling = false; fullUIUpdate(); return;
             }
-
-
-            rolls = []; // Reset rolls array
-            for(let i=0; i < currentDicePool; ++i) rolls.push(undefined); // Initialize with placeholders
-
-            outcomeText = ""; // Clear previous outcome
+            rolls = []; 
+            for(let i=0; i < currentDicePool; ++i) rolls.push(undefined); 
+            outcomeText = ""; 
             canPushLuck = false; canPayPrice = false; pushedLuckDieRoll = null;
             if (sequenceChainTimeoutId) clearTimeout(sequenceChainTimeoutId);
             sequenceChainTimeoutId = null;
-
-            isRolling = true; hasRolledThisTurn = false; // Reset hasRolledThisTurn for the new roll sequence
+            isRolling = true; hasRolledThisTurn = false; 
             currentRollIndex = 0;
             currentAnimatedValue = null;
-            currentSequenceTotalDice = currentDicePool; // Store how many dice are in this sequence
-
-            fullUIUpdate(); // Update UI to "Rolling..."
+            currentSequenceTotalDice = currentDicePool; 
+            fullUIUpdate(); 
             processNextDieInSequence(0, currentSequenceTotalDice);
         }
 
         function processNextDieInSequence(rollIdx, totalDiceInPool) {
-            if (!isRolling) { // If isRolling was set to false (e.g. by reset or opportunity)
+            if (!isRolling) { 
                 if (sequenceChainTimeoutId) clearTimeout(sequenceChainTimeoutId);
                 sequenceChainTimeoutId = null;
                 return;
             }
-            if (canPushLuck || canPayPrice) { // An opportunity has arisen, pause sequence
-                // UI update will handle displaying opportunity buttons
-                isRolling = false; // Stop the automatic sequence
-                hasRolledThisTurn = true; // Mark that a roll result leading to opportunity occurred
+            if (canPushLuck || canPayPrice) { 
+                isRolling = false; 
+                hasRolledThisTurn = true; 
                 fullUIUpdate();
                 return;
             }
-
             currentRollIndex = rollIdx;
-            currentAnimatedValue = null; // Reset for animation
-            renderDicePool(); // Show "waiting" for the current die
-
+            currentAnimatedValue = null; 
+            renderDicePool(); 
             let animationCounter = 0;
             const animationIntervalId = setInterval(() => {
-                if (!isRolling) { // Double check if rolling was aborted mid-animation
+                if (!isRolling) { 
                     clearInterval(animationIntervalId);
                     return;
                 }
                 currentAnimatedValue = Math.floor(Math.random() * 6) + 1;
-                renderDicePool(); // Update with animation frame
+                renderDicePool(); 
                 animationCounter++;
-
                 if (animationCounter >= SINGLE_DIE_ANIMATION_FRAMES) {
                     clearInterval(animationIntervalId);
-
                     const currentDieRoll = Math.floor(Math.random() * 6) + 1;
                     rolls[rollIdx] = currentDieRoll;
                     currentAnimatedValue = currentDieRoll;
-                    renderDicePool(); // Show final result for this die
-
-                    // Check for countdown clock adjustments based on die roll
-                    if (currentDieRoll === 6 && countdownClock < 99) { // Assuming 99 max
+                    renderDicePool(); 
+                    if (currentDieRoll === 6 && countdownClock < 99) { 
                         countdownClock++;
-                        // No updateCountdownDisplay() here, will be done by fullUIUpdate
                     } else if (currentDieRoll === 1 && countdownClock > 0) {
                         countdownClock--;
-                        // No updateCountdownDisplay() here
                     }
-
-
                     const postAnimationPauseTimeout = setTimeout(() => {
-                        if (!isRolling && !(canPushLuck || canPayPrice)) { // If aborted and no opportunity, just stop.
+                        if (!isRolling && !(canPushLuck || canPayPrice)) { 
                              currentAnimatedValue = null; renderDicePool(); return;
                         }
-
-                        currentAnimatedValue = null; // Clear animation value for next die
-                        renderDicePool(); // Reflect cleared animation value
-
+                        currentAnimatedValue = null; 
+                        renderDicePool(); 
                         determineSingleDieOpportunity(currentDieRoll);
-
                         if (canPushLuck || canPayPrice) {
-                            isRolling = false; // Stop sequence, player interaction needed
-                            hasRolledThisTurn = true; // A result is available
+                            isRolling = false; 
+                            hasRolledThisTurn = true; 
                             if (canPayPrice) {
-                                indexOfRollToRedo = rollIdx; // Store which die caused the 'pay price' option
+                                indexOfRollToRedo = rollIdx; 
                             }
-                            fullUIUpdate(); // Show opportunity buttons
+                            fullUIUpdate(); 
                             return;
                         }
-
                         const isLastDieInSequence = (rollIdx + 1) >= totalDiceInPool;
-
                         if (isLastDieInSequence) {
                             isRolling = false;
-                            currentRollIndex = null; // No die is "current" anymore
+                            currentRollIndex = null; 
                             finalizeOverallOutcome(rolls);
                             hasRolledThisTurn = true;
                             fullUIUpdate();
                         } else {
-                            // Schedule next die roll in sequence
                             const delayForNextDie = BASE_DELAY_AFTER_DIE_FINISHES + (rollIdx * DELAY_INCREMENT_PER_DIE);
                             sequenceChainTimeoutId = setTimeout(() => {
-                                if (isRolling) { // Check again, in case of user interruption
+                                if (isRolling) { 
                                     processNextDieInSequence(rollIdx + 1, totalDiceInPool);
                                 }
                             }, delayForNextDie);
@@ -1289,7 +1188,6 @@
             }, SINGLE_DIE_ANIMATION_INTERVAL);
         }
 
-        // --- EVENT LISTENERS ---
         decreaseDifficultyBtn.addEventListener('click', () => { 
             if (!isRolling && !hasRolledThisTurn && !canPushLuck && !canPayPrice) { 
                 difficulty = Math.max(0, difficulty - 1); 
@@ -1303,7 +1201,6 @@
             }
         });
 
-        // Timer event listeners
         startTensionTimerBtn.addEventListener('click', startTensionTimer);
         pauseTensionTimerBtn.addEventListener('click', pauseTensionTimer);
         resetTensionTimerBtn.addEventListener('click', resetTensionTimer);
@@ -1323,7 +1220,6 @@
         pushLuckBtn.addEventListener('click', handlePushLuck);
         payPriceBtn.addEventListener('click', handlePayPrice);
 
-        // Initial UI setup
         fullUIUpdate();
     });
   </script>
