@@ -14,26 +14,27 @@
         --bg-tertiary: #e9eff3; 
         --text-primary: #2c3e50;
         --text-secondary: #526c84;
-        --border-color: #dce4ec; /* Softer border */
+        --border-color: #dce4ec; 
         
-        /* Countdown Clock - Normal State (Blue Ring, White Text) */
+        /* Countdown Clock - Normal State */
         --countdown-ring-normal-fill: #2980b9; 
-        --countdown-text-normal-color: white;
+        --countdown-text-normal-color: white; /* Solid white for N/M for clarity */
 
         /* Tension Timer & Countdown Warning State (Orange/Yellowish) */
         --timer-gradient-warning-start: #fdd835; 
         --timer-gradient-warning-end: #f9a825;   
-        --timer-text-warning-color: white; /* For contrast on orange gradient */
+        --countdown-ring-warning-fill: var(--timer-gradient-warning-end); /* Solid color for ring */
+        --countdown-text-warning-color: white; /* Solid white */
         
         /* Tension Timer & Countdown Danger State (Red) */
         --timer-gradient-danger-start: #ef5350; 
         --timer-gradient-danger-end: #d32f2f;    
-        --timer-text-danger-color: white;
+        --countdown-ring-danger-fill: var(--timer-gradient-danger-end); /* Solid color for ring */
+        --countdown-text-danger-color: white; /* Solid white */
 
         /* Tension Timer Normal State (Blue Gradient) */
         --timer-gradient-normal-start: #6cb2e9; 
         --timer-gradient-normal-end: #2991de;   
-        --timer-text-normal-color: white;
 
         --countdown-ring-track-color: #d0d9e0;
 
@@ -71,39 +72,36 @@
         .timer-control-group { flex-basis: 45%; display: flex; flex-direction: column; align-items: center; gap: 10px; }
         .timer-label { font-weight: 600; font-size: 0.9rem; color: var(--text-secondary); letter-spacing: 0.5px; margin-bottom: 0px; text-transform: uppercase;}
         
-        .visual-timer-display-area { display: flex; align-items: center; gap: 10px; width: 100%; justify-content: center; }
+        .visual-timer-display-area { display: flex; align-items: center; gap: 8px; width: 100%; justify-content: center; }
         
-        /* Tension Timer with SVG Border */
         .visual-timer-container {
             position: relative; 
             display: flex; 
             align-items: center;
             justify-content: center;
-            background-color: var(--bg-tertiary); /* Plain gray backdrop */
+            background-color: var(--bg-tertiary); 
             border-radius: 10px; 
             width: 110px; 
             height: 60px;    
-            overflow: visible; /* Allow SVG stroke to be outside if needed for thickness */
-            border: 1px solid var(--border-color); /* Fallback border */
+            overflow: visible; 
+            border: 1px solid var(--border-color); 
         }
         .timer-svg-border {
-            position: absolute;
-            top: 0; left: 0;
+            position: absolute; top: 0; left: 0;
             width: 100%; height: 100%;
-            pointer-events: none; /* So it doesn't interfere with text selection */
+            pointer-events: none; 
         }
         .timer-svg-border rect {
-            width: calc(100% - 6px); /* Account for stroke width for inner feel */
-            height: calc(100% - 6px);
+            width: calc(100% - 6px); height: calc(100% - 6px);
             x: 3px; y: 3px;
             fill: transparent;
-            stroke-width: 6px; /* Thickness of the gradient border */
-            rx: 7px; /* Rounded corners for the SVG rect */
-            stroke-dasharray: 1000; /* Large enough, will be set by JS */
-            stroke-dashoffset: 0;  /* JS animates this */
+            stroke-width: 6px; 
+            rx: 7px; 
+            stroke-dasharray: 300; /* Placeholder, JS will calculate */
+            stroke-dashoffset: 0;  
             transition: stroke-dashoffset 0.15s linear, stroke 0.3s ease;
         }
-        .timer-text-content {
+        .timer-text-content { /* For Tension Timer */
             font-family: 'League Spartan', sans-serif;
             font-size: 2.6rem; 
             font-weight: 700; 
@@ -111,21 +109,16 @@
             line-height: 1; 
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            /* Critical for gradient text */
             background-clip: text;
             -webkit-background-clip: text;
-            color: transparent; /* Text color is transparent, shows gradient bg */
-            /* Gradient background will be set by JS */
+            color: transparent; 
+            /* Gradient set by JS */
         }
 
-        /* Countdown Clock with SVG Ring */
-        #countdownVisualContainer {
-            /* Uses .visual-timer-container for base styling */
-        }
-        .countdown-pie-svg { /* Changed to countdown-ring-svg */
-            width: 52px; 
-            height: 52px;
-            position: absolute; 
-            top: 50%; left: 50%;
+        .countdown-ring-svg { 
+            width: 52px; height: 52px;
+            position: absolute; top: 50%; left: 50%;
             transform: translate(-50%, -50%) rotate(-90deg); 
             z-index: 1;
         }
@@ -142,13 +135,13 @@
             stroke-width: 7; 
             transition: stroke-dashoffset 0.25s ease-in-out, stroke 0.25s ease-in-out;
         }
-        .countdown-text-content { 
+        .countdown-text-content { /* For Countdown Clock N/M */
             font-family: 'League Spartan', sans-serif;
-            font-size: 1.8rem; /* Adjusted for N/M format */
+            font-size: 1.6rem; /* Smaller for N/M */
             font-weight: 700; 
             z-index: 2;
             line-height: 1; 
-            color: var(--countdown-text-normal-color); /* Default text color */
+            color: var(--countdown-text-normal-color); /* Solid color */
         }
         
         .timer-buttons { display: flex; gap: 10px; margin-top: 8px; }
@@ -161,20 +154,24 @@
         .timer-btn:hover { background-color: var(--countdown-ring-normal-fill); color: white; transform: translateY(-1px); box-shadow: 0 2px 4px var(--shadow-medium); }
         .timer-btn:active { transform: translateY(0); box-shadow: 0 1px 2px var(--shadow-light); }
         
-        .countdown-buttons-group { display: flex; flex-direction: column; gap: 6px; }
-        .countdown-buttons-group button { 
-            width: 32px; height: 28px; border: 1px solid var(--border-color); 
-            border-radius: 6px; background-color: var(--bg-tertiary); 
-            color: var(--text-primary); font-size: 1.2rem; 
+        .countdown-buttons-group { display: flex; flex-direction: column; gap: 4px; /* Tighter gap */ }
+        .countdown-buttons-group button, .countdown-denominator-buttons-group button { 
+            width: 28px; height: 24px; /* Even smaller */
+            border: 1px solid var(--border-color); 
+            border-radius: 5px; background-color: var(--bg-tertiary); 
+            color: var(--text-primary); font-size: 1rem; 
             font-weight: bold; cursor: pointer; transition: all 0.2s; line-height: 1; 
             box-shadow: 0 1px 1px var(--shadow-light);
         }
-        .countdown-buttons-group button:hover { background-color: var(--countdown-ring-normal-fill); color: white; transform: translateY(-1px); }
-
-        /* Fallback for non-gradient text or if needed */
-        .timer-text-content.normal { color: var(--timer-text-normal-color); }
-        .timer-text-content.warning { color: var(--timer-text-warning-color); }
-        .timer-text-content.danger { color: var(--timer-text-danger-color); }
+        .countdown-buttons-group button:hover, .countdown-denominator-buttons-group button:hover { 
+            background-color: var(--countdown-ring-normal-fill); color: white; transform: translateY(-1px); 
+        }
+        .countdown-denominator-buttons-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-left: 6px; /* Space it from the N/M buttons */
+        }
 
 
         .dice-pool-display { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 25px; padding: 18px; background-color: var(--bg-secondary); border-radius: 12px; min-height: 74px; box-shadow: 0 4px 12px var(--shadow-light); align-items: center; justify-content: center; }
@@ -191,7 +188,7 @@
         .die-face.placeholder, .die-face.filled-placeholder, .die-face.waiting { color: var(--text-secondary); background-color: transparent; font-size: 2.2rem; box-shadow: none; text-shadow: none; }
         .die-face.success { background-color: var(--success); }
         .die-face.failure { background-color: var(--failure); }
-        .die-face.partial-success { background-color: var(--timer-gradient-warning-end); } /* Using timer warning color */
+        .die-face.partial-success { background-color: var(--timer-gradient-warning-end); } 
         .die-face.partial-failure { background-color: #7f8c8d; }
         .die-face.pushed-luck-die { background-color: #f1c40f; color: var(--text-primary); border: 2px dashed var(--text-primary); }
         .die-face.animating { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
@@ -287,17 +284,17 @@
             <div class="timer-control-group">
               <div class="timer-label">Tension Timer</div>
               <div class="visual-timer-container" id="tensionTimerVisualContainer">
-                  <svg class="timer-svg-border">
+                  <svg class="timer-svg-border" width="100%" height="100%">
                       <defs>
-                          <linearGradient id="tensionGradientNormal" x1="0%" y1="0%" x2="100%" y2="0%">
+                          <linearGradient id="tensionGradientNormalDef" x1="0%" y1="0%" x2="100%" y2="0%">
                               <stop offset="0%" stop-color="var(--timer-gradient-normal-start)" />
                               <stop offset="100%" stop-color="var(--timer-gradient-normal-end)" />
                           </linearGradient>
-                          <linearGradient id="tensionGradientWarning" x1="0%" y1="0%" x2="100%" y2="0%">
+                          <linearGradient id="tensionGradientWarningDef" x1="0%" y1="0%" x2="100%" y2="0%">
                               <stop offset="0%" stop-color="var(--timer-gradient-warning-start)" />
                               <stop offset="100%" stop-color="var(--timer-gradient-warning-end)" />
                           </linearGradient>
-                          <linearGradient id="tensionGradientDanger" x1="0%" y1="0%" x2="100%" y2="0%">
+                          <linearGradient id="tensionGradientDangerDef" x1="0%" y1="0%" x2="100%" y2="0%">
                               <stop offset="0%" stop-color="var(--timer-gradient-danger-start)" />
                               <stop offset="100%" stop-color="var(--timer-gradient-danger-end)" />
                           </linearGradient>
@@ -317,15 +314,19 @@
               <div class="timer-label">Countdown Clock</div>
                <div class="visual-timer-display-area">
                   <div class="visual-timer-container" id="countdownVisualContainer">
-                      <svg class="countdown-pie-svg" viewBox="0 0 50 50">
+                      <svg class="countdown-ring-svg" viewBox="0 0 50 50">
                           <circle class="countdown-ring-track" cx="25" cy="25" r="20"></circle>
                           <circle id="countdownRingFillSegment" class="countdown-ring-fill-segment" cx="25" cy="25" r="20"></circle>
                       </svg>
                       <span id="countdownText" class="countdown-text-content">3 / 6</span>
                   </div>
-                  <div class="countdown-buttons-group">
-                    <button id="increaseCountdownBtn">+</button>
-                    <button id="decreaseCountdownBtn">-</button>
+                  <div class="countdown-buttons-group"> <!-- Numerator buttons -->
+                    <button id="increaseCountdownBtn" title="Increase current count">+</button>
+                    <button id="decreaseCountdownBtn" title="Decrease current count">-</button>
+                  </div>
+                  <div class="countdown-denominator-buttons-group"> <!-- Denominator buttons -->
+                    <button id="increaseCountdownDenominatorBtn" title="Increase max count">M+</button>
+                    <button id="decreaseCountdownDenominatorBtn" title="Decrease max count">M-</button>
                   </div>
               </div>
               <button id="resetCountdownBtn" class="timer-btn">RESET</button>
@@ -403,10 +404,10 @@
     let tensionTimerStartTime = 0; 
     let tensionTimerPausedTime = 0; 
     let tensionTimerSeconds; 
-    let tensionTimerBorderPerimeter = 0; // For SVG border animation
+    let tensionTimerBorderPerimeter = 300; // Default, will be calculated
 
     let countdownClock = 3; 
-    const COUNTDOWN_RING_MAX_VALUE = 6; // Denominator
+    let countdownClockDenominator = 6; // Modifiable denominator
     const RING_RADIUS = 20; 
     const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
 
@@ -444,6 +445,9 @@
         const decreaseCountdownBtn = document.getElementById('decreaseCountdownBtn');
         const increaseCountdownBtn = document.getElementById('increaseCountdownBtn');
         const resetCountdownBtn = document.getElementById('resetCountdownBtn');
+        const increaseCountdownDenominatorBtn = document.getElementById('increaseCountdownDenominatorBtn');
+        const decreaseCountdownDenominatorBtn = document.getElementById('decreaseCountdownDenominatorBtn');
+
 
         const addPlayerModalEl = document.getElementById('addPlayerModal');
         const playerNameInput = document.getElementById('playerNameInput');
@@ -457,11 +461,24 @@
         const STAR_ICON = '✨';
         const USER_ICON = '👤';
 
-        // Calculate perimeter for tension timer SVG border once
-        const rectWidth = tensionTimerVisualContainer.clientWidth - 6; // Subtract stroke width
-        const rectHeight = tensionTimerVisualContainer.clientHeight - 6;
-        tensionTimerBorderPerimeter = 2 * (rectWidth + rectHeight);
-        tensionTimerSvgBorderRectEl.style.strokeDasharray = tensionTimerBorderPerimeter;
+        function calculateTensionTimerSvgBorderPerimeter() {
+            const svgRect = tensionTimerSvgBorderRectEl;
+            if (svgRect) {
+                const width = svgRect.width.baseVal.value;
+                const height = svgRect.height.baseVal.value;
+                if (width > 0 && height > 0) {
+                    tensionTimerBorderPerimeter = 2 * (width + height);
+                    tensionTimerSvgBorderRectEl.style.strokeDasharray = tensionTimerBorderPerimeter;
+                } else {
+                     // Fallback if dimensions aren't immediately available
+                    tensionTimerBorderPerimeter = 2 * (tensionTimerVisualContainer.clientWidth -6 + tensionTimerVisualContainer.clientHeight -6);
+                    if(tensionTimerBorderPerimeter > 10) tensionTimerSvgBorderRectEl.style.strokeDasharray = tensionTimerBorderPerimeter;
+                    else tensionTimerBorderPerimeter = 300; // Last resort fallback
+                }
+            }
+        }
+        // Call it once after a short delay to ensure DOM is ready
+        setTimeout(calculateTensionTimerSvgBorderPerimeter, 50);
 
 
         function generatePlayerColor() {
@@ -498,48 +515,32 @@
             } else if (tensionTimerSeconds <= 0) {
                  fillPercentage = 0;
             } else { 
-                 fillPercentage = 1; // Full if total is 0 but current isn't (edge case)
+                 fillPercentage = 1;
             }
             
-            // Animate SVG border: offset goes from 0 (full) to perimeter (empty)
-            // To make it "undraw", we want offset to increase as time decreases
             const borderOffset = tensionTimerBorderPerimeter * (1 - fillPercentage);
             tensionTimerSvgBorderRectEl.style.strokeDashoffset = borderOffset;
             
-            // Default to normal state styles
-            let currentGradientUrl = 'url(#tensionGradientNormal)';
-            let currentTextColorVar = 'var(--timer-text-normal-color)';
+            let currentGradientUrl = 'url(#tensionGradientNormalDef)';
+            let currentGradientCss = `linear-gradient(90deg, var(--timer-gradient-normal-start), var(--timer-gradient-normal-end))`;
             tensionTimerVisualContainer.classList.remove('warning', 'danger');
-
 
             if (totalSeconds > 0) {
                 const percentRemaining = tensionTimerSeconds / totalSeconds;
-                if (tensionTimerSeconds <= 0) { // Expired
+                if (tensionTimerSeconds <= 0 || percentRemaining <= 0.25) { 
                     tensionTimerVisualContainer.classList.add('danger');
-                    currentGradientUrl = 'url(#tensionGradientDanger)';
-                    currentTextColorVar = 'var(--timer-text-danger-color)';
-                } else if (percentRemaining <= 0.25) { // Danger zone
-                    tensionTimerVisualContainer.classList.add('danger');
-                    currentGradientUrl = 'url(#tensionGradientDanger)';
-                    currentTextColorVar = 'var(--timer-text-danger-color)';
-                } else if (percentRemaining <= 0.5) { // Warning zone
+                    currentGradientUrl = 'url(#tensionGradientDangerDef)';
+                    currentGradientCss = `linear-gradient(90deg, var(--timer-gradient-danger-start), var(--timer-gradient-danger-end))`;
+                } else if (percentRemaining <= 0.5) { 
                     tensionTimerVisualContainer.classList.add('warning');
-                    currentGradientUrl = 'url(#tensionGradientWarning)';
-                    currentTextColorVar = 'var(--timer-text-warning-color)';
+                    currentGradientUrl = 'url(#tensionGradientWarningDef)';
+                    currentGradientCss = `linear-gradient(90deg, var(--timer-gradient-warning-start), var(--timer-gradient-warning-end))`;
                 }
             } else { 
-                 tensionTimerSvgBorderRectEl.style.strokeDashoffset = tensionTimerBorderPerimeter; // Empty border
+                 tensionTimerSvgBorderRectEl.style.strokeDashoffset = tensionTimerBorderPerimeter; 
             }
             tensionTimerSvgBorderRectEl.style.stroke = currentGradientUrl;
-            tensionTimerTextEl.style.backgroundImage = `linear-gradient(90deg, var(${currentGradientUrl.includes('Warning') ? '--timer-gradient-warning-start' : currentGradientUrl.includes('Danger') ? '--timer-gradient-danger-start' : '--timer-gradient-normal-start'}), var(${currentGradientUrl.includes('Warning') ? '--timer-gradient-warning-end' : currentGradientUrl.includes('Danger') ? '--timer-gradient-danger-end' : '--timer-gradient-normal-end'}))`;
-            // Fallback solid color if gradient text fails or for simplicity
-            // tensionTimerTextEl.style.color = `var(${currentTextColorVar.slice(4, -1)})`; // Use the variable value directly
-            // For gradient text, color must be transparent. The classList can handle fallback.
-            tensionTimerTextEl.classList.remove('normal', 'warning', 'danger');
-            if (currentGradientUrl.includes('Warning')) tensionTimerTextEl.classList.add('warning');
-            else if (currentGradientUrl.includes('Danger')) tensionTimerTextEl.classList.add('danger');
-            else tensionTimerTextEl.classList.add('normal');
-
+            tensionTimerTextEl.style.backgroundImage = currentGradientCss; 
         }
 
         function startTensionTimer() {
@@ -590,41 +591,51 @@
         }
 
         function updateCountdownDisplay() {
-            countdownTextEl.textContent = `${countdownClock} / ${COUNTDOWN_RING_MAX_VALUE}`;
-            const fillPercentage = Math.min(1, Math.max(0, countdownClock / COUNTDOWN_RING_MAX_VALUE));
+            countdownTextEl.textContent = `${countdownClock} / ${countdownClockDenominator}`;
+            // Ensure denominator is not zero for calculation
+            const currentDenominator = countdownClockDenominator > 0 ? countdownClockDenominator : 1;
+            const fillPercentage = Math.min(1, Math.max(0, countdownClock / currentDenominator));
             const offset = RING_CIRCUMFERENCE * (1 - fillPercentage);
             
             countdownRingFillSegmentEl.style.strokeDasharray = `${RING_CIRCUMFERENCE}`;
             countdownRingFillSegmentEl.style.strokeDashoffset = `${offset}`;
 
-            // Reset to normal colors first
+            // Color logic based on percentage
+            const percentageValue = countdownClock / currentDenominator;
+            
             countdownRingFillSegmentEl.style.stroke = 'var(--countdown-ring-normal-fill)';
             countdownTextEl.style.color = 'var(--countdown-text-normal-color)';
 
-            if (countdownClock <= Math.floor(COUNTDOWN_RING_MAX_VALUE * 0.25) && countdownClock > 0 && COUNTDOWN_RING_MAX_VALUE > 1) { // Danger (e.g., 1/6)
-                countdownRingFillSegmentEl.style.stroke = 'var(--timer-gradient-danger-end)'; // Use a solid color from danger gradient
-                countdownTextEl.style.color = 'var(--timer-text-danger-color)';
-            } else if (countdownClock <= Math.floor(COUNTDOWN_RING_MAX_VALUE * 0.5) && countdownClock > 0) { // Warning (e.g., 2/6, 3/6)
-                countdownRingFillSegmentEl.style.stroke = 'var(--timer-gradient-warning-end)'; // Use a solid color from warning gradient
-                countdownTextEl.style.color = 'var(--timer-text-warning-color)';
+            if (countdownClock === 0 && currentDenominator > 0) {
+                 countdownTextEl.style.color = 'var(--text-secondary)'; // Dim for 0
+            } else if (percentageValue <= 0.25 && countdownClock > 0) { // Danger
+                countdownRingFillSegmentEl.style.stroke = 'var(--countdown-ring-danger-fill)';
+                countdownTextEl.style.color = 'var(--countdown-text-danger-color)';
+            } else if (percentageValue <= 0.5 && countdownClock > 0) { // Warning
+                countdownRingFillSegmentEl.style.stroke = 'var(--countdown-ring-warning-fill)';
+                countdownTextEl.style.color = 'var(--countdown-text-warning-color)';
             }
-             if (countdownClock === 0) { 
-                countdownTextEl.style.color = 'var(--text-secondary)'; 
-             }
         }
 
 
         function adjustCountdownClock(amount) {
             if (isRolling || hasRolledThisTurn) return;
             countdownClock = Math.max(0, countdownClock + amount); 
-            // No upper limit for the clock value itself, but visualization is capped by COUNTDOWN_RING_MAX_VALUE
-            countdownClock = Math.min(countdownClock, 99); // Arbitrary practical upper limit for display
+            countdownClock = Math.min(countdownClock, countdownClockDenominator); // Cannot exceed denominator
+            updateCountdownDisplay();
+        }
+        
+        function adjustCountdownDenominator(amount) {
+            if (isRolling || hasRolledThisTurn) return;
+            countdownClockDenominator = Math.max(1, countdownClockDenominator + amount); // Denominator must be at least 1
+            countdownClock = Math.min(countdownClock, countdownClockDenominator); // Adjust current if it exceeds new denominator
             updateCountdownDisplay();
         }
 
         function resetCountdownClock() {
             if (isRolling || hasRolledThisTurn) return;
-            countdownClock = 3; // Or initial value, ensure it's within reasonable bounds for N/M display
+            countdownClockDenominator = 6; // Reset denominator too
+            countdownClock = 3; 
             updateCountdownDisplay();
         }
 
@@ -788,7 +799,7 @@
             if (pushedLuckDieRoll !== null && !isRolling && !isRedoingRollAfterPrice) {
                 const pushedDieSlot = document.createElement('div');
                 pushedDieSlot.classList.add('dice-slot', 'filled');
-                pushedDieSlot.style.borderColor = '#f1c40f'; // General warning yellow
+                pushedDieSlot.style.borderColor = '#f1c40f'; 
                 const dieFaceDiv = document.createElement('div');
                 dieFaceDiv.classList.add('die-face', 'pushed-luck-die');
                  if (pushedLuckDieRoll <= 3) dieFaceDiv.classList.add('failure'); else dieFaceDiv.classList.add('success');
@@ -951,7 +962,7 @@
             else if (highest <= 3) outcomeText = "Failure with a silver lining (2-3)"; 
             else outcomeText = "Success with a complication (4-5)"; 
             
-            if (countdownClock > 0 && !isRedoingRollAfterPrice && !canPushLuck && !canPayPrice) { // Only decrement if it's a "final" roll outcome for the turn
+            if (countdownClock > 0 && !isRedoingRollAfterPrice && !canPushLuck && !canPayPrice) {
                 countdownClock--;
             }
         }
@@ -1275,6 +1286,8 @@
         decreaseCountdownBtn.addEventListener('click', () => adjustCountdownClock(-1));
         increaseCountdownBtn.addEventListener('click', () => adjustCountdownClock(1));
         resetCountdownBtn.addEventListener('click', resetCountdownClock);
+        increaseCountdownDenominatorBtn.addEventListener('click', () => adjustCountdownDenominator(1));
+        decreaseCountdownDenominatorBtn.addEventListener('click', () => adjustCountdownDenominator(-1));
 
         openAddPlayerModalBtn.addEventListener('click', () => { addPlayerModalEl.style.display = 'flex'; });
         cancelAddPlayerBtn.addEventListener('click', () => {
@@ -1287,25 +1300,10 @@
         pushLuckBtn.addEventListener('click', handlePushLuck);
         payPriceBtn.addEventListener('click', handlePayPrice);
 
-        // Calculate perimeter for tension timer SVG border *after* DOM is fully loaded and styled
-        // Use a slight delay if clientWidth/Height are 0 initially
-        setTimeout(() => {
-            const containerWidth = tensionTimerVisualContainer.clientWidth;
-            const containerHeight = tensionTimerVisualContainer.clientHeight;
-            const strokeWidth = 6; // Must match CSS
-            const rectEffectiveWidth = containerWidth - strokeWidth;
-            const rectEffectiveHeight = containerHeight - strokeWidth;
-            tensionTimerBorderPerimeter = 2 * (rectEffectiveWidth + rectEffectiveHeight);
-            if (tensionTimerBorderPerimeter > 0) { // Ensure it's calculated
-                 tensionTimerSvgBorderRectEl.style.strokeDasharray = tensionTimerBorderPerimeter;
-            } else {
-                // Fallback or retry if dimensions not ready
-                console.warn("Tension timer dimensions not ready for perimeter calculation on init.");
-                tensionTimerBorderPerimeter = 300; // Arbitrary fallback
-                tensionTimerSvgBorderRectEl.style.strokeDasharray = tensionTimerBorderPerimeter;
-            }
-            fullUIUpdate(); // Initial render with correct perimeter
-        }, 50);
+        setTimeout(() => { // Delay to ensure styles are applied for accurate calculation
+            calculateTensionTimerSvgBorderPerimeter();
+            fullUIUpdate();
+        }, 100);
 
 
     });
