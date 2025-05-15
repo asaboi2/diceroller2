@@ -1,7 +1,7 @@
 // dice-roller.js
 
 // Entire JS logic including tension timers
-
+<script>
 document.addEventListener('DOMContentLoaded', () => {
   // --- STATE ---
   let difficulty = 2;
@@ -431,3 +431,4 @@ document.addEventListener('DOMContentLoaded', () => {
   actDisp.textContent=actionLimit;
   fullUIUpdate();
 });
+</script>
