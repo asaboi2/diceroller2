@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dice Roller with Tension Timers</title>
+    <title>Dice Roller with Tension Timers & Rulebook</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
+        /* --- START OF APP STYLES --- */
         :root {
         --bg-primary: #f8fafc;
         --bg-secondary: #ffffff;
@@ -16,36 +17,35 @@
         --text-secondary: #526c84;
         --border-color: #dce4ec; 
         
-        /* Countdown Clock - Normal State */
-        --countdown-ring-normal-fill: #2980b9; 
-        --countdown-text-normal-color: white; /* Solid white for N/M for clarity */
+        --countdown-block-normal-fill: #2980b9; 
+        --countdown-text-normal-color: var(--text-primary);
 
-        /* Tension Timer & Countdown Warning State (Orange/Yellowish) */
         --timer-gradient-warning-start: #fdd835; 
         --timer-gradient-warning-end: #f9a825;   
-        --countdown-ring-warning-fill: var(--timer-gradient-warning-end); /* Solid color for ring */
-        --countdown-text-warning-color: white; /* Solid white */
-        
-        /* Tension Timer & Countdown Danger State (Red) */
+        --countdown-block-warning-fill: var(--timer-gradient-warning-end);
+        --timer-text-warning-color: white; 
+        --countdown-text-warning-color: var(--text-primary);
+
+
         --timer-gradient-danger-start: #ef5350; 
         --timer-gradient-danger-end: #d32f2f;    
-        --countdown-ring-danger-fill: var(--timer-gradient-danger-end); /* Solid color for ring */
-        --countdown-text-danger-color: white; /* Solid white */
+        --countdown-block-danger-fill: var(--timer-gradient-danger-end);
+        --timer-text-danger-color: white; 
+        --countdown-text-danger-color: var(--text-primary);
 
-        /* Tension Timer Normal State (Blue Gradient) */
         --timer-gradient-normal-start: #6cb2e9; 
         --timer-gradient-normal-end: #2991de;   
-
-        --countdown-ring-track-color: #d0d9e0;
+        --timer-text-normal-color: white; 
 
         --accent-secondary: #8e44ad;
         --success: #27ae60;
-        --failure: #c0392b;
+        --failure: #c0392b; /* Used for main Reset button */
+        --warning-button-bg: #f1c40f; /* Yellow for Pay Price/Push Luck */
         --shadow-light: rgba(44, 62, 80, 0.08);
         --shadow-medium: rgba(44, 62, 80, 0.12);
         }
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
+        body { /* This body style might be overridden by rulebook's !important body style */
             font-family: 'League Spartan', 'Inter', system-ui, sans-serif;
             font-weight: 400;
             line-height: 1.6;
@@ -54,54 +54,53 @@
             min-height: 100vh;
         }
         .app-title-header { text-align: center; padding: 20px 0; margin-bottom: 20px; }
-        .app-title-header h1 { font-size: 2.8rem; font-weight: 800; color: var(--countdown-ring-normal-fill); letter-spacing: 1px; text-shadow: 1px 1px 0px var(--bg-tertiary); }
+        .app-title-header h1 { font-size: 2.8rem; font-weight: 800; color: var(--countdown-block-normal-fill); letter-spacing: 1px; text-shadow: 1px 1px 0px var(--bg-tertiary); }
         .main-layout-container { display: grid; grid-template-columns: 280px 1fr; gap: 30px; max-width: 900px; margin: 0 auto; padding: 0 20px 30px 20px; }
         .left-column { padding: 20px; background-color: var(--bg-secondary); border-radius: 12px; box-shadow: 0 4px 12px var(--shadow-light); align-self: start; }
         
-        header.controls-header { display: flex; justify-content: flex-end; align-items: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid var(--countdown-ring-normal-fill); }
+        header.controls-header { display: flex; justify-content: flex-end; align-items: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid var(--countdown-block-normal-fill); }
         .difficulty-control { display: flex; align-items: center; gap: 10px; background-color: var(--bg-secondary); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border-color); box-shadow: 0 1px 3px var(--shadow-light); }
         .difficulty-control .difficulty-label { color: var(--text-secondary); font-weight: 600; font-size: 0.9rem; }
         .difficulty-buttons-group { display: flex; align-items: center; gap: 6px; }
-        #difficultyDisplay { font-weight: bold; font-size: 1.1rem; color: var(--countdown-ring-normal-fill); padding: 0 8px; min-width: 20px; text-align: center; }
+        #difficultyDisplay { font-weight: bold; font-size: 1.1rem; color: var(--countdown-block-normal-fill); padding: 0 8px; min-width: 20px; text-align: center; }
         .difficulty-buttons-group button { width: 30px; height: 30px; border: 1px solid var(--border-color); border-radius: 8px; background-color: var(--bg-tertiary); color: var(--text-primary); font-size: 1.2rem; font-weight: bold; cursor: pointer; transition: all 0.2s; line-height: 1; }
-        .difficulty-buttons-group button:hover { background-color: var(--countdown-ring-normal-fill); color: white; transform: translateY(-1px); }
+        .difficulty-buttons-group button:hover { background-color: var(--countdown-block-normal-fill); color: white; transform: translateY(-1px); }
         .difficulty-buttons-group button:active { transform: translateY(0); }
 
         .tension-timers-section { margin-bottom: 25px; padding: 18px; background-color: var(--bg-secondary); border-radius: 12px; box-shadow: 0 4px 12px var(--shadow-light); }
-        .timer-controls-row { display: flex; gap: 25px; justify-content: space-around; align-items: flex-start; }
-        .timer-control-group { flex-basis: 45%; display: flex; flex-direction: column; align-items: center; gap: 10px; }
-        .timer-label { font-weight: 600; font-size: 0.9rem; color: var(--text-secondary); letter-spacing: 0.5px; margin-bottom: 0px; text-transform: uppercase;}
-        
-        .visual-timer-display-area { display: flex; align-items: center; gap: 8px; width: 100%; justify-content: center; }
+        .timer-controls-row { display: flex; gap: 20px; justify-content: space-around; align-items: flex-start; }
+        .timer-control-group { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+        .timer-label { font-weight: 600; font-size: 0.9rem; color: var(--text-secondary); letter-spacing: 0.5px; margin-bottom: 2px; text-transform: uppercase;}
         
         .visual-timer-container {
             position: relative; 
             display: flex; 
+            flex-direction: column; 
             align-items: center;
             justify-content: center;
             background-color: var(--bg-tertiary); 
             border-radius: 10px; 
-            width: 110px; 
+            min-width: 110px; 
             height: 60px;    
-            overflow: visible; 
+            padding: 5px;
             border: 1px solid var(--border-color); 
         }
-        .timer-svg-border {
+        #tensionTimerVisualContainer .timer-svg-border {
             position: absolute; top: 0; left: 0;
             width: 100%; height: 100%;
             pointer-events: none; 
         }
-        .timer-svg-border rect {
+        #tensionTimerVisualContainer .timer-svg-border rect {
             width: calc(100% - 6px); height: calc(100% - 6px);
             x: 3px; y: 3px;
             fill: transparent;
             stroke-width: 6px; 
             rx: 7px; 
-            stroke-dasharray: 300; /* Placeholder, JS will calculate */
+            stroke-dasharray: 300; 
             stroke-dashoffset: 0;  
             transition: stroke-dashoffset 0.15s linear, stroke 0.3s ease;
         }
-        .timer-text-content { /* For Tension Timer */
+        #tensionTimerVisualContainer .timer-text-content { 
             font-family: 'League Spartan', sans-serif;
             font-size: 2.6rem; 
             font-weight: 700; 
@@ -109,77 +108,164 @@
             line-height: 1; 
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
-            /* Critical for gradient text */
             background-clip: text;
             -webkit-background-clip: text;
             color: transparent; 
-            /* Gradient set by JS */
+            padding-top: 3px; 
         }
 
-        .countdown-ring-svg { 
-            width: 52px; height: 52px;
-            position: absolute; top: 50%; left: 50%;
-            transform: translate(-50%, -50%) rotate(-90deg); 
-            z-index: 1;
+        #countdownVisualContainer {
+            justify-content: space-around; 
+            padding: 8px; 
+            height: 70px; 
+            min-width: 130px; 
         }
-        .countdown-ring-track, .countdown-ring-fill-segment { 
-            fill: transparent;
-            stroke-linecap: round; 
+        .countdown-block-container {
+            display: flex;
+            gap: 3px; 
+            width: 100%;
+            height: 15px; 
+            margin-bottom: 5px; 
         }
-        .countdown-ring-track {
-            stroke: var(--countdown-ring-track-color); 
-            stroke-width: 7; 
+        .countdown-block {
+            flex-grow: 1; 
+            height: 100%;
+            background-color: var(--border-color); 
+            border-radius: 3px;
+            transition: background-color 0.2s ease-in-out;
         }
-        .countdown-ring-fill-segment {
-            stroke: var(--countdown-ring-normal-fill); 
-            stroke-width: 7; 
-            transition: stroke-dashoffset 0.25s ease-in-out, stroke 0.25s ease-in-out;
-        }
-        .countdown-text-content { /* For Countdown Clock N/M */
+        .countdown-block.active.normal { background-color: var(--countdown-block-normal-fill); }
+        .countdown-block.active.warning { background-color: var(--countdown-block-warning-fill); }
+        .countdown-block.active.danger { background-color: var(--countdown-block-danger-fill); }
+
+        #countdownVisualContainer .countdown-text-content { 
             font-family: 'League Spartan', sans-serif;
-            font-size: 1.6rem; /* Smaller for N/M */
-            font-weight: 700; 
-            z-index: 2;
+            font-size: 1.4rem; 
+            font-weight: 600; 
             line-height: 1; 
-            color: var(--countdown-text-normal-color); /* Solid color */
+            color: var(--countdown-text-normal-color); 
+            width: 100%;
+            text-align: center;
         }
         
-        .timer-buttons { display: flex; gap: 10px; margin-top: 8px; }
-        .timer-btn { 
-            padding: 7px 15px; border: 1px solid var(--border-color); border-radius: 8px; 
+        .timer-buttons { display: flex; gap: 6px; margin-top: 8px; }
+        .timer-btn, .duration-btn { 
+            padding: 6px 10px; 
+            border: 1px solid var(--border-color); border-radius: 8px; 
             background-color: var(--bg-tertiary); color: var(--text-primary); 
-            font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s; 
+            font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s; 
             box-shadow: 0 1px 2px var(--shadow-light);
+            min-width: 40px; 
+            text-align: center;
         }
-        .timer-btn:hover { background-color: var(--countdown-ring-normal-fill); color: white; transform: translateY(-1px); box-shadow: 0 2px 4px var(--shadow-medium); }
-        .timer-btn:active { transform: translateY(0); box-shadow: 0 1px 2px var(--shadow-light); }
+        .timer-btn:hover, .duration-btn:hover { background-color: var(--countdown-block-normal-fill); color: white; transform: translateY(-1px); box-shadow: 0 2px 4px var(--shadow-medium); }
+        .timer-btn:active, .duration-btn:active { transform: translateY(0); box-shadow: 0 1px 2px var(--shadow-light); }
+        .duration-btn.active { 
+            background-color: var(--countdown-block-normal-fill);
+            color: white;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+        }
+
         
-        .countdown-buttons-group { display: flex; flex-direction: column; gap: 4px; /* Tighter gap */ }
-        .countdown-buttons-group button, .countdown-denominator-buttons-group button { 
-            width: 28px; height: 24px; /* Even smaller */
+        .countdown-controls-underneath { 
+            display: flex;
+            flex-direction: column; 
+            align-items: center;
+            gap: 10px; 
+            margin-top: 8px;
+        }
+        .countdown-numerator-controls { 
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .countdown-numerator-buttons button {
+            width: 32px; height: 28px; 
             border: 1px solid var(--border-color); 
-            border-radius: 5px; background-color: var(--bg-tertiary); 
+            border-radius: 6px; background-color: var(--bg-tertiary); 
             color: var(--text-primary); font-size: 1rem; 
             font-weight: bold; cursor: pointer; transition: all 0.2s; line-height: 1; 
             box-shadow: 0 1px 1px var(--shadow-light);
         }
-        .countdown-buttons-group button:hover, .countdown-denominator-buttons-group button:hover { 
-            background-color: var(--countdown-ring-normal-fill); color: white; transform: translateY(-1px); 
+        #countdownDenominatorInput {
+            width: 45px; height: 28px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            padding: 0 5px;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            -moz-appearance: textfield; 
         }
-        .countdown-denominator-buttons-group {
+        #countdownDenominatorInput::-webkit-outer-spin-button,
+        #countdownDenominatorInput::-webkit-inner-spin-button {
+            -webkit-appearance: none; 
+            margin: 0;
+        }
+        .countdown-numerator-buttons button:hover { 
+            background-color: var(--countdown-block-normal-fill); color: white; transform: translateY(-1px); 
+        }
+
+        .status { padding: 14px 18px; background-color: var(--bg-secondary); border-radius: 10px; margin-bottom: 20px; text-align: center; color: var(--text-secondary); font-weight: 500; font-size: 1.05rem; box-shadow: 0 2px 8px var(--shadow-light); border-left: 4px solid var(--countdown-block-normal-fill); }
+        
+        .actions-group { 
             display: flex;
-            flex-direction: column;
-            gap: 4px;
-            margin-left: 6px; /* Space it from the N/M buttons */
+            justify-content: center;
+            margin-bottom: 15px; 
         }
+        .actions-group button#rollDiceBtn { 
+            padding: 14px 25px; 
+            border: none; 
+            border-radius: 10px; 
+            font-weight: 700; 
+            font-size: 1.1rem; 
+            cursor: pointer; 
+            transition: all 0.2s ease-out; 
+            box-shadow: 0 3px 7px var(--shadow-light);
+            min-width: 280px; 
+            max-width: 350px; 
+            text-align: center;
+        }
+        .actions-group button#rollDiceBtn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 5px 10px var(--shadow-medium); }
+        .actions-group button#rollDiceBtn:active:not(:disabled) { transform: translateY(0px); box-shadow: 0 2px 5px var(--shadow-light); }
+        .actions-group button#rollDiceBtn:disabled { opacity: 0.6; cursor: not-allowed; box-shadow: none; }
 
+        .btn-roll.reset-mode { background-color: var(--failure); color: white; }
+        .btn-roll.roll-mode { background: linear-gradient(145deg, var(--success), #239b56); color: white; }
+        
+        .special-action-buttons-container { 
+            display: flex; 
+            justify-content: center; 
+            gap: 15px; 
+            margin-bottom: 25px; 
+            min-height: 44px; 
+        }
+        .special-action-buttons-container button { 
+            padding: 10px 20px; 
+            border: none; 
+            border-radius: 8px; 
+            font-weight: 600; 
+            font-size: 0.95rem; 
+            cursor: pointer; 
+            background-color: var(--warning-button-bg); 
+            color: var(--text-primary); 
+            box-shadow: 0 2px 5px var(--shadow-light); 
+            transition: all 0.2s ease-out; 
+        }
+        .special-action-buttons-container button:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 4px 8px var(--shadow-medium); filter: brightness(1.05); }
+        .special-action-buttons-container button:disabled { opacity: 0.5; background-color: var(--text-secondary); cursor: not-allowed; box-shadow: none; }
 
+        .players-section h2 { font-size: 1.5rem; color: var(--countdown-block-normal-fill); margin-bottom: 18px; padding-bottom: 10px; font-weight: 600; border-bottom: 1px solid var(--border-color); text-align: center; }
+        .player-list { display: flex; flex-direction: column; gap: 15px; align-items: stretch; }
+        .modal-content h2 { text-align:center; margin-top:0; margin-bottom:25px; color:var(--countdown-block-normal-fill); font-size:1.6rem; }
         .dice-pool-display { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 25px; padding: 18px; background-color: var(--bg-secondary); border-radius: 12px; min-height: 74px; box-shadow: 0 4px 12px var(--shadow-light); align-items: center; justify-content: center; }
         .dice-slot { width: 56px; height: 56px; border-radius: 10px; display: flex; align-items: center; justify-content: center; position: relative; background-color: var(--bg-tertiary); overflow: hidden; transition: transform 0.2s ease-out; }
         .dice-slot:hover { transform: scale(1.05); }
         .dice-slot.empty { border: 2.5px dashed rgba(41, 128, 185, 0.5); background-color: transparent; }
         .dice-slot.filled, .dice-slot.extra, .dice-slot.special-move-covered { border-width: 2.5px; border-style: solid; box-shadow: 0 2px 5px var(--shadow-light); }
-        .dice-slot.filled { border-color: var(--countdown-ring-normal-fill); }
+        .dice-slot.filled { border-color: var(--countdown-block-normal-fill); }
         .dice-slot.extra { border-color: var(--accent-secondary); }
         .dice-slot.special-move-covered { border-color: var(--accent-secondary); padding: 0; }
         img.player-cover-image { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; display: block; }
@@ -190,49 +276,33 @@
         .die-face.failure { background-color: var(--failure); }
         .die-face.partial-success { background-color: var(--timer-gradient-warning-end); } 
         .die-face.partial-failure { background-color: #7f8c8d; }
-        .die-face.pushed-luck-die { background-color: #f1c40f; color: var(--text-primary); border: 2px dashed var(--text-primary); }
+        .die-face.pushed-luck-die { background-color: var(--warning-button-bg); color: var(--text-primary); border: 2px dashed var(--text-primary); }
         .die-face.animating { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
         @keyframes shake { 0%,100%{transform:translateX(0) rotate(0)}20%{transform:translateX(-4px) rotate(-3deg)}40%{transform:translateX(4px) rotate(3deg)}60%{transform:translateX(-3px) rotate(-2deg)}80%{transform:translateX(3px) rotate(2deg)} }
         .player-indicator { position: absolute; bottom: -6px; right: -6px; width: 26px; height: 26px; border-radius: 13px; overflow: hidden; border: 2px solid white; box-shadow: 0 1px 4px var(--shadow-medium); background-color: var(--text-secondary); }
         .player-indicator.generic { display:flex; align-items:center; justify-content:center; color: white; font-size: 0.9rem; font-weight: bold; } 
         .player-indicator img { width: 100%; height: 100%; object-fit: cover; }
-        .status { padding: 14px 18px; background-color: var(--bg-secondary); border-radius: 10px; margin-bottom: 20px; text-align: center; color: var(--text-secondary); font-weight: 500; font-size: 1.05rem; box-shadow: 0 2px 8px var(--shadow-light); border-left: 4px solid var(--countdown-ring-normal-fill); }
-        .players-section h2 { font-size: 1.5rem; color: var(--countdown-ring-normal-fill); margin-bottom: 18px; padding-bottom: 10px; font-weight: 600; border-bottom: 1px solid var(--border-color); text-align: center; }
-        .player-list { display: flex; flex-direction: column; gap: 15px; align-items: stretch; }
         .player-item { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 10px; background-color: var(--bg-primary); box-shadow: 0 2px 6px var(--shadow-light); transition: all 0.2s ease-out; }
         .player-item:hover { transform: translateY(-2px); box-shadow: 0 4px 10px var(--shadow-medium); }
         .player-info { display: flex; align-items: center; gap: 10px; flex-grow: 1; }
-        .player-avatar-container { position: relative; width: 48px; height: 48px; border-radius: 50%; overflow: hidden; border: 2.5px solid var(--countdown-ring-normal-fill); display: flex; align-items: center; justify-content: center; background-color: var(--bg-tertiary); flex-shrink: 0; }
+        .player-avatar-container { position: relative; width: 48px; height: 48px; border-radius: 50%; overflow: hidden; border: 2.5px solid var(--countdown-block-normal-fill); display: flex; align-items: center; justify-content: center; background-color: var(--bg-tertiary); flex-shrink: 0; }
         .player-avatar-img { width: 100%; height: 100%; object-fit: cover; }
-        .player-initial-avatar { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background-color: var(--countdown-ring-normal-fill); color: white; font-size: 1.6rem; font-weight: bold; font-family: 'League Spartan', system-ui, sans-serif; }
+        .player-initial-avatar { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background-color: var(--countdown-block-normal-fill); color: white; font-size: 1.6rem; font-weight: bold; font-family: 'League Spartan', system-ui, sans-serif; }
         .player-name-label { font-size: 0.9rem; color: var(--text-primary); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-grow: 1; }
         .player-action-icons { display: flex; gap: 8px; }
         .player-action-btn { background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-secondary); border-radius: 8px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.2rem; transition: all 0.2s ease-out; box-shadow: 0 1px 2px var(--shadow-light); }
-        .player-action-btn:hover:not(:disabled) { background-color: var(--countdown-ring-normal-fill); color: white; transform: scale(1.05); box-shadow: 0 2px 4px var(--shadow-medium); }
+        .player-action-btn:hover:not(:disabled) { background-color: var(--countdown-block-normal-fill); color: white; transform: scale(1.05); box-shadow: 0 2px 4px var(--shadow-medium); }
         .player-action-btn:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; background-color: var(--bg-tertiary); color: #a0a0a0; }
         .player-action-btn:last-child:hover:not(:disabled) { background-color: var(--accent-secondary); } 
         .add-player-button { width: 100%; padding: 10px; margin-top: 20px; border-radius: 8px; border: 2.5px dashed var(--border-color); background-color: transparent; color: var(--text-secondary); font-size: 1.2rem; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease-out; }
-        .add-player-button:hover { color: var(--countdown-ring-normal-fill); border-color: var(--countdown-ring-normal-fill); background-color: var(--bg-tertiary); }
+        .add-player-button:hover { color: var(--countdown-block-normal-fill); border-color: var(--countdown-block-normal-fill); background-color: var(--bg-tertiary); }
         .no-players-text { font-size: 0.95rem; color: var(--text-secondary); margin-top: 15px; text-align: center; }
-        .actions-group { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; }
-        .actions-group button { padding: 14px 18px; border: none; border-radius: 10px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.2s ease-out; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 2px 5px var(--shadow-light); }
-        .actions-group button:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 4px 8px var(--shadow-medium); }
-        .actions-group button:active:not(:disabled) { transform: translateY(0px); box-shadow: 0 1px 3px var(--shadow-light); }
-        .actions-group button:disabled { opacity: 0.6; cursor: not-allowed; box-shadow: none; }
-        .btn-roll { font-size: 1.15rem; padding: 16px; }
-        .btn-roll.reset-mode { background-color: var(--failure); color: white; }
-        .btn-roll.roll-mode { background: linear-gradient(145deg, var(--success), #239b56); color: white; }
-        .special-action-buttons-container { display: flex; justify-content: center; gap: 12px; margin-bottom: 25px; min-height: 44px; }
-        .special-action-buttons-container button { padding: 10px 18px; border: none; border-radius: 8px; font-weight: 600; font-size: 0.9rem; cursor: pointer; background-color: #f1c40f; color: var(--text-primary); box-shadow: 0 2px 5px var(--shadow-light); transition: all 0.2s ease-out; }
-        .special-action-buttons-container button:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 4px 8px var(--shadow-medium); filter: brightness(1.05); }
-        .special-action-buttons-container button:disabled { opacity: 0.5; background-color: var(--text-secondary); cursor: not-allowed; box-shadow: none; }
         .modal { position: fixed; top:0; left:0; right:0; bottom:0; background-color:rgba(20,30,40,0.6); display:flex; align-items:center; justify-content:center; z-index:1000; padding:20px; backdrop-filter:blur(3px); }
         .modal-content { background-color:var(--bg-secondary); padding:30px 35px; border-radius:16px; width:100%; max-width:480px; box-shadow:0 8px 25px rgba(44,62,80,0.2); }
-        .modal-content h2 { text-align:center; margin-top:0; margin-bottom:25px; color:var(--countdown-ring-normal-fill); font-size:1.6rem; }
         .form-group { margin-bottom:22px; }
         .form-group label { display:block; margin-bottom:8px; font-weight:500; color:var(--text-secondary); font-size:0.9rem; }
         .form-group input[type="text"], .form-group input[type="file"] { width:100%; padding:12px 15px; border-radius:8px; border:1px solid var(--border-color); background-color:var(--bg-primary); color:var(--text-primary); font-size:1rem; transition:border-color .2s,box-shadow .2s; }
-        .form-group input[type="text"]:focus, .form-group input[type="file"]:focus { outline:none; border-color:var(--countdown-ring-normal-fill); box-shadow:0 0 0 3px rgba(41,128,185,0.2); }
+        .form-group input[type="text"]:focus, .form-group input[type="file"]:focus { outline:none; border-color:var(--countdown-block-normal-fill); box-shadow:0 0 0 3px rgba(41,128,185,0.2); }
         .form-group input[type="file"] { padding:10px 15px; }
         .image-preview { margin-top:15px; width:100px; height:100px; border-radius:50%; overflow:hidden; border:3px solid var(--border-color); box-shadow:0 2px 4px var(--shadow-light); }
         .image-preview img { width:100%; height:100%; object-fit:cover; }
@@ -240,10 +310,218 @@
         .modal-actions button { padding:10px 22px; border:none; border-radius:8px; font-weight:600; font-size:0.95rem; cursor:pointer; transition:all .2s ease-out; }
         .modal-actions button:first-child { background-color:transparent; color:var(--text-secondary); border:1px solid var(--border-color); }
         .modal-actions button:first-child:hover { background-color:var(--bg-tertiary); }
-        .modal-actions button:last-child { background-color:var(--countdown-ring-normal-fill); color:white; box-shadow:0 2px 5px var(--shadow-light); }
+        .modal-actions button:last-child { background-color:var(--countdown-block-normal-fill); color:white; box-shadow:0 2px 5px var(--shadow-light); }
         .modal-actions button:last-child:hover { background-color:#2471a3; box-shadow:0 3px 7px var(--shadow-medium); }
         .modal-actions button:disabled { opacity:.5; cursor:not-allowed; box-shadow:none!important; }
+        .visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            margin: -1px;
+            padding: 0;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            border: 0;
+        }
+        /* --- END OF APP STYLES --- */
     </style>
+    <!-- START OF RULEBOOK STYLES (copied from rulebook.html's head) -->
+    <style>
+        /* Universal CSS Reset */
+        /* Styles below already have *, *::before, *::after from app, so not repeating */
+
+        /* Global Styles for Rulebook - Body styles here will affect the whole page due to !important */
+        body { /* These will take precedence due to !important */
+          background-color: #f4f4f9 !important;
+          color: #333 !important;
+          line-height: 1.6 !important;
+          font-family: 'League Spartan', sans-serif !important;
+        }
+        /* Scoping rulebook specific styles to its container if possible, but many are global or use !important */
+        #rulebookDisplaySection .container { /* This is the main content div from the rulebook */
+          width: 90% !important;
+          max-width: 1200px !important;
+          margin: 50px auto !important; /* Adjusted margin as wrapper provides top/bottom */
+          background-color: #fff !important;
+          padding: 65px !important;
+          box-shadow: 0 0 10px rgba(0,0,0,0.1) !important;
+          border-left: 5px solid #2991de !important;
+          border-right: 5px solid #2991de !important;
+        }
+        #rulebookDisplaySection .container h1,
+        #rulebookDisplaySection .container h2,
+        #rulebookDisplaySection .container h3,
+        #rulebookDisplaySection .container h4,
+        #rulebookDisplaySection .container h5 {
+          color: #2991de !important;
+          margin-bottom: 20px !important;
+          font-weight: bold !important;
+        }
+        #rulebookDisplaySection .container h1 {
+          font-size: 3em !important;
+          text-align: center !important;
+          margin-bottom: 10px !important;
+          position: relative !important;
+        }
+        #rulebookDisplaySection .container .subtitle {
+          font-size: 1.2em !important;
+          font-weight: 400 !important;
+          color: #555 !important;
+          text-align: center !important;
+          margin-top: 0 !important;
+          margin-bottom: 30px !important;
+        }
+        #rulebookDisplaySection .container h2 {
+          font-size: 2em !important;
+          border-bottom: 2px solid #2991de !important;
+          padding-bottom: 10px !important;
+          margin-top: 40px !important;
+        }
+        #rulebookDisplaySection .container h3 {
+          font-size: 1.5em !important;
+          margin-top: 30px !important;
+        }
+        #rulebookDisplaySection .container h4 {
+          font-size: 1.25em !important;
+          margin-top: 25px !important;
+        }
+        #rulebookDisplaySection .container h5 {
+          font-size: 1em !important;
+          margin-top: 20px !important;
+          color: #2991de !important;
+        }
+        #rulebookDisplaySection .container p {
+          margin-bottom: 20px !important;
+          font-size: 20px !important;
+        }
+        #rulebookDisplaySection .container ul {
+          list-style: disc inside !important;
+          margin-bottom: 20px !important;
+          padding-left: 20px !important;
+        }
+        #rulebookDisplaySection .container li {
+          margin-bottom: 10px !important;
+          font-size: 20px !important;
+        }
+        #rulebookDisplaySection .container .accent {
+          color: #2991de !important;
+          font-weight: bold !important;
+        }
+        #rulebookDisplaySection .container .note {
+          background-color: #e0f0ff !important;
+          border-left: 4px solid #2991de !important;
+          padding: 10px 15px !important;
+          margin: 20px 0 !important;
+          font-size: 20px !important;
+        }
+        #rulebookDisplaySection .container .heritage-options {
+          border: 2px dashed #2991de !important;
+          padding: 15px !important;
+          margin: 20px 0 !important;
+          border-radius: 5px !important;
+          background-color: #eef6ff !important;
+        }
+        #rulebookDisplaySection .container .heritage-options ul {
+          list-style: none !important;
+          padding-left: 0 !important;
+        }
+        #rulebookDisplaySection .container .heritage-options li {
+          margin-bottom: 10px !important;
+        }
+        #rulebookDisplaySection .container .heritage-options li strong {
+          color: #2991de !important;
+        }
+        #rulebookDisplaySection .container .character-sheet {
+          border: 2px solid #2991de !important;
+          padding: 20px !important;
+          margin-bottom: 40px !important;
+          border-radius: 5px !important;
+          background-color: #fafafa !important;
+        }
+        #rulebookDisplaySection .container .character-sheet h3 {
+          color: #2991de !important;
+          border-bottom: 1px solid #2991de !important;
+          padding-bottom: 5px !important;
+          margin-bottom: 15px !important;
+        }
+        #rulebookDisplaySection .container .character-sheet h4 {
+          color: #2991de !important;
+          margin-top: 15px !important;
+        }
+        #rulebookDisplaySection .container .character-sheet h5 {
+          font-size: 1.1em !important;
+          margin-top: 10px !important;
+          color: #2991de !important;
+        }
+        #rulebookDisplaySection .container .character-sheet ul {
+          list-style: none !important;
+          padding-left: 0 !important;
+        }
+        #rulebookDisplaySection .container .character-sheet li {
+          margin-bottom: 8px !important;
+          font-size: 1em !important;
+        }
+        #rulebookDisplaySection .container .character-sheet .equipment-list {
+          list-style: disc inside !important;
+          padding-left: 20px !important;
+        }
+        #rulebookDisplaySection .container .expertise-area {
+          margin-bottom: 15px !important;
+        }
+        #rulebookDisplaySection .container .expertise-area strong {
+          display: block !important;
+          font-size: 1.1em !important;
+          margin-bottom: 5px !important;
+        }
+        #rulebookDisplaySection .container .expertise-area em {
+          font-style: italic !important;
+          color: #555 !important;
+          display: block !important;
+          margin-left: 0 !important;
+        }
+        #rulebookDisplaySection .container .dropdown,
+        #rulebookDisplaySection .container .text-input {
+          margin-top: 10px !important;
+          margin-bottom: 20px !important;
+        }
+        #rulebookDisplaySection .container .dropdown select,
+        #rulebookDisplaySection .container .text-input input {
+          width: 100% !important;
+          padding: 8px !important;
+          font-size: 1em !important;
+          border: 1px solid #ccc !important;
+          border-radius: 4px !important;
+        }
+        /* Responsive for rulebook content */
+        @media (max-width: 600px) {
+          #rulebookDisplaySection .container {
+            padding: 20px !important;
+            margin: 20px auto !important;
+          }
+          #rulebookDisplaySection .container h1 {
+            font-size: 2.5em !important;
+          }
+          #rulebookDisplaySection .container .subtitle {
+            font-size: 1em !important;
+          }
+          #rulebookDisplaySection .container h2 {
+            font-size: 1.75em !important;
+          }
+          #rulebookDisplaySection .container h3 {
+            font-size: 1.25em !important;
+          }
+          #rulebookDisplaySection .container h4 {
+            font-size: 1em !important;
+          }
+          #rulebookDisplaySection .container h5 {
+            font-size: 0.9em !important;
+          }
+          #rulebookDisplaySection .container .character-sheet {
+            padding: 15px !important;
+          }
+        }
+    </style>
+    <!-- END OF RULEBOOK STYLES -->
 </head>
 <body>
   <div class="dice-roller-app">
@@ -301,35 +579,33 @@
                       </defs>
                       <rect id="tensionTimerSvgBorderRect" />
                   </svg>
-                  <span id="tensionTimerText" class="timer-text-content">16s</span>
+                  <span id="tensionTimerText" class="timer-text-content">0s</span>
               </div>
-              <div class="timer-buttons">
-                <button id="startTensionTimerBtn" class="timer-btn">START</button>
-                <button id="pauseTensionTimerBtn" class="timer-btn" style="display: none;">PAUSE</button>
-                <button id="resetTensionTimerBtn" class="timer-btn">RESET</button>
+                <div class="timer-buttons">
+                <button class="duration-btn" data-duration="30">React</button>
+                <button class="duration-btn" data-duration="60">Sync</button>
+                <button class="duration-btn" data-duration="90">Plan</button>
               </div>
             </div>
 
             <div class="timer-control-group">
               <div class="timer-label">Countdown Clock</div>
-               <div class="visual-timer-display-area">
-                  <div class="visual-timer-container" id="countdownVisualContainer">
-                      <svg class="countdown-ring-svg" viewBox="0 0 50 50">
-                          <circle class="countdown-ring-track" cx="25" cy="25" r="20"></circle>
-                          <circle id="countdownRingFillSegment" class="countdown-ring-fill-segment" cx="25" cy="25" r="20"></circle>
-                      </svg>
-                      <span id="countdownText" class="countdown-text-content">3 / 6</span>
-                  </div>
-                  <div class="countdown-buttons-group"> <!-- Numerator buttons -->
-                    <button id="increaseCountdownBtn" title="Increase current count">+</button>
-                    <button id="decreaseCountdownBtn" title="Decrease current count">-</button>
-                  </div>
-                  <div class="countdown-denominator-buttons-group"> <!-- Denominator buttons -->
-                    <button id="increaseCountdownDenominatorBtn" title="Increase max count">M+</button>
-                    <button id="decreaseCountdownDenominatorBtn" title="Decrease max count">M-</button>
-                  </div>
-              </div>
-              <button id="resetCountdownBtn" class="timer-btn">RESET</button>
+                <div class="visual-timer-container" id="countdownVisualContainer">
+                    <div id="countdownBlockContainer" class="countdown-block-container">
+                        <!-- Blocks will be generated by JS -->
+                    </div>
+                    <span id="countdownText" class="countdown-text-content">3 / 6</span>
+                </div>
+                <div class="countdown-controls-underneath">
+                    <div class="countdown-numerator-controls">
+                        <div class="countdown-numerator-buttons">
+                            <button id="increaseCountdownBtn" title="Increase current count">+</button>
+                            <button id="decreaseCountdownBtn" title="Decrease current count">-</button>
+                        </div>
+                        <label for="countdownDenominatorInput" class="visually-hidden">Max Countdown:</label>
+                        <input type="number" id="countdownDenominatorInput" value="6" min="1" max="20" title="Set max count (denominator)">
+                    </div>
+                </div>
             </div>
           </div>
         </div>
@@ -337,12 +613,13 @@
         <div id="statusMessage" class="status">Ready to roll!</div>
 
         <div class="actions-group">
-          <button id="rollDiceBtn" class="btn-roll roll-mode">Roll Dice</button>
-          <div id="specialActionButtonsContainer" class="special-action-buttons-container">
+            <button id="rollDiceBtn" class="btn-roll roll-mode">Roll Dice</button>
+        </div>
+        <div id="specialActionButtonsContainer" class="special-action-buttons-container">
             <button id="pushLuckBtn" style="display:none;">Push Your Luck</button>
             <button id="payPriceBtn" style="display:none;">Pay Price & Redo Roll</button>
-          </div>
         </div>
+
       </div>
     </div>
 
@@ -367,7 +644,6 @@
       </div>
     </div>
   </div>
-
   <script>
     // --- GLOBAL STATE & CONFIG ---
     let difficulty = 2;
@@ -403,14 +679,12 @@
     let isTensionTimerRunning = false;
     let tensionTimerStartTime = 0; 
     let tensionTimerPausedTime = 0; 
-    let tensionTimerSeconds; 
-    let tensionTimerBorderPerimeter = 300; // Default, will be calculated
+    let tensionTimerSeconds = 0; 
+    let tensionTimerTotalDurationSet = 0; 
+    let tensionTimerBorderPerimeter = 300;
 
     let countdownClock = 3; 
-    let countdownClockDenominator = 6; // Modifiable denominator
-    const RING_RADIUS = 20; 
-    const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
-
+    let countdownClockDenominator = 6; 
 
     const SINGLE_DIE_ANIMATION_FRAMES = 12; 
     const SINGLE_DIE_ANIMATION_INTERVAL = 60; 
@@ -435,18 +709,14 @@
         const tensionTimerVisualContainer = document.getElementById('tensionTimerVisualContainer');
         const tensionTimerTextEl = document.getElementById('tensionTimerText');
         const tensionTimerSvgBorderRectEl = document.getElementById('tensionTimerSvgBorderRect');
-        const startTensionTimerBtn = document.getElementById('startTensionTimerBtn');
-        const pauseTensionTimerBtn = document.getElementById('pauseTensionTimerBtn');
-        const resetTensionTimerBtn = document.getElementById('resetTensionTimerBtn');
+        const durationButtons = document.querySelectorAll('.duration-btn');
 
         const countdownVisualContainer = document.getElementById('countdownVisualContainer');
         const countdownTextEl = document.getElementById('countdownText');
-        const countdownRingFillSegmentEl = document.getElementById('countdownRingFillSegment');
+        const countdownBlockContainerEl = document.getElementById('countdownBlockContainer'); 
         const decreaseCountdownBtn = document.getElementById('decreaseCountdownBtn');
         const increaseCountdownBtn = document.getElementById('increaseCountdownBtn');
-        const resetCountdownBtn = document.getElementById('resetCountdownBtn');
-        const increaseCountdownDenominatorBtn = document.getElementById('increaseCountdownDenominatorBtn');
-        const decreaseCountdownDenominatorBtn = document.getElementById('decreaseCountdownDenominatorBtn');
+        const countdownDenominatorInputEl = document.getElementById('countdownDenominatorInput');
 
 
         const addPlayerModalEl = document.getElementById('addPlayerModal');
@@ -464,21 +734,28 @@
         function calculateTensionTimerSvgBorderPerimeter() {
             const svgRect = tensionTimerSvgBorderRectEl;
             if (svgRect) {
-                const width = svgRect.width.baseVal.value;
-                const height = svgRect.height.baseVal.value;
-                if (width > 0 && height > 0) {
-                    tensionTimerBorderPerimeter = 2 * (width + height);
-                    tensionTimerSvgBorderRectEl.style.strokeDasharray = tensionTimerBorderPerimeter;
+                const containerWidth = tensionTimerVisualContainer.offsetWidth;
+                const containerHeight = tensionTimerVisualContainer.offsetHeight;
+                const strokeWidthStyle = getComputedStyle(svgRect).strokeWidth;
+                const strokeWidth = parseFloat(strokeWidthStyle) || 6; 
+
+                if (containerWidth > strokeWidth && containerHeight > strokeWidth) {
+                    const rectEffectiveWidth = containerWidth - strokeWidth;
+                    const rectEffectiveHeight = containerHeight - strokeWidth;
+                    tensionTimerBorderPerimeter = 2 * (rectEffectiveWidth + rectEffectiveHeight);
+                    if (isFinite(tensionTimerBorderPerimeter) && tensionTimerBorderPerimeter > 0) {
+                         svgRect.style.strokeDasharray = tensionTimerBorderPerimeter;
+                    } else {
+                        tensionTimerBorderPerimeter = 300; 
+                        svgRect.style.strokeDasharray = tensionTimerBorderPerimeter;
+                    }
                 } else {
-                     // Fallback if dimensions aren't immediately available
-                    tensionTimerBorderPerimeter = 2 * (tensionTimerVisualContainer.clientWidth -6 + tensionTimerVisualContainer.clientHeight -6);
-                    if(tensionTimerBorderPerimeter > 10) tensionTimerSvgBorderRectEl.style.strokeDasharray = tensionTimerBorderPerimeter;
-                    else tensionTimerBorderPerimeter = 300; // Last resort fallback
+                    tensionTimerBorderPerimeter = 300; 
+                    svgRect.style.strokeDasharray = tensionTimerBorderPerimeter;
                 }
             }
         }
-        // Call it once after a short delay to ensure DOM is ready
-        setTimeout(calculateTensionTimerSvgBorderPerimeter, 50);
+        setTimeout(calculateTensionTimerSvgBorderPerimeter, 150);
 
 
         function generatePlayerColor() {
@@ -487,17 +764,9 @@
             return `hsl(${hue}, ${SATURATION}%, ${LIGHTNESS}%)`;
         }
 
-        function calculateTensionTimerDuration() {
-            if (difficulty <= 0) return 0; 
-            let secondsPerDie = 8.0;
-            if (difficulty > 1) secondsPerDie -= (difficulty - 1) * 0.5;
-            secondsPerDie = Math.ceil(secondsPerDie);
-            secondsPerDie = Math.max(3, secondsPerDie);
-            return secondsPerDie * difficulty;
-        }
-
         function updateTensionTimerDisplay() {
-            const totalSeconds = calculateTensionTimerDuration();
+            const totalSecondsForDisplay = tensionTimerTotalDurationSet > 0 ? tensionTimerTotalDurationSet : 1;
+            
             const minutes = Math.floor(tensionTimerSeconds / 60);
             const seconds = tensionTimerSeconds % 60;
             
@@ -510,12 +779,8 @@
             tensionTimerTextEl.textContent = displayText;
 
             let fillPercentage = 0;
-            if (totalSeconds > 0) {
-                fillPercentage = Math.max(0, (tensionTimerSeconds / totalSeconds));
-            } else if (tensionTimerSeconds <= 0) {
-                 fillPercentage = 0;
-            } else { 
-                 fillPercentage = 1;
+            if (tensionTimerTotalDurationSet > 0) {
+                fillPercentage = Math.max(0, (tensionTimerSeconds / tensionTimerTotalDurationSet));
             }
             
             const borderOffset = tensionTimerBorderPerimeter * (1 - fillPercentage);
@@ -523,119 +788,129 @@
             
             let currentGradientUrl = 'url(#tensionGradientNormalDef)';
             let currentGradientCss = `linear-gradient(90deg, var(--timer-gradient-normal-start), var(--timer-gradient-normal-end))`;
-            tensionTimerVisualContainer.classList.remove('warning', 'danger');
-
-            if (totalSeconds > 0) {
-                const percentRemaining = tensionTimerSeconds / totalSeconds;
+            
+            if (tensionTimerTotalDurationSet > 0) {
+                const percentRemaining = tensionTimerSeconds / tensionTimerTotalDurationSet;
                 if (tensionTimerSeconds <= 0 || percentRemaining <= 0.25) { 
-                    tensionTimerVisualContainer.classList.add('danger');
                     currentGradientUrl = 'url(#tensionGradientDangerDef)';
                     currentGradientCss = `linear-gradient(90deg, var(--timer-gradient-danger-start), var(--timer-gradient-danger-end))`;
                 } else if (percentRemaining <= 0.5) { 
-                    tensionTimerVisualContainer.classList.add('warning');
                     currentGradientUrl = 'url(#tensionGradientWarningDef)';
                     currentGradientCss = `linear-gradient(90deg, var(--timer-gradient-warning-start), var(--timer-gradient-warning-end))`;
                 }
             } else { 
                  tensionTimerSvgBorderRectEl.style.strokeDashoffset = tensionTimerBorderPerimeter; 
+                 tensionTimerTextEl.textContent = "0s"; 
             }
             tensionTimerSvgBorderRectEl.style.stroke = currentGradientUrl;
             tensionTimerTextEl.style.backgroundImage = currentGradientCss; 
         }
-
-        function startTensionTimer() {
-            if (isTensionTimerRunning) return;
-            const totalDurationForThisRun = calculateTensionTimerDuration();
-            if (totalDurationForThisRun <= 0) {
-                tensionTimerSeconds = 0;
-                tensionTimerPausedTime = 0;
-                isTensionTimerRunning = false;
-                if (tensionTimerInterval) clearInterval(tensionTimerInterval);
-                updateTensionTimerDisplay();
-                startTensionTimerBtn.style.display = 'inline-block';
-                pauseTensionTimerBtn.style.display = 'none';
-                return;
-            }
+        
+        function startTensionTimerInternalLogic(duration) {
+            if (tensionTimerInterval) clearInterval(tensionTimerInterval);
+            
+            tensionTimerTotalDurationSet = duration; 
+            tensionTimerSeconds = duration;
             isTensionTimerRunning = true;
-            tensionTimerStartTime = Date.now() - tensionTimerPausedTime;
+            tensionTimerStartTime = Date.now();
+            tensionTimerPausedTime = 0; 
+
+            updateTensionTimerDisplay(); 
+
             tensionTimerInterval = setInterval(() => {
                 const elapsed = Math.floor((Date.now() - tensionTimerStartTime) / 1000);
-                tensionTimerSeconds = Math.max(0, totalDurationForThisRun - elapsed);
+                tensionTimerSeconds = Math.max(0, tensionTimerTotalDurationSet - elapsed);
+                
                 updateTensionTimerDisplay();
+                
                 if (tensionTimerSeconds <= 0) {
-                    pauseTensionTimer();
-                    outcomeText = "Time's up! Auto-fail due to tension timer expiring.";
-                    hasRolledThisTurn = true; 
-                    isRolling = false; 
-                    fullUIUpdate(); 
+                    if (tensionTimerInterval) clearInterval(tensionTimerInterval);
+                    tensionTimerInterval = null;
+                    isTensionTimerRunning = false;
+                    console.log("Tension Timer Expired!"); 
                 }
             }, 100);
-            startTensionTimerBtn.style.display = 'none';
-            pauseTensionTimerBtn.style.display = 'inline-block';
         }
 
-        function pauseTensionTimer() {
-            if (!isTensionTimerRunning) return;
+        function haltTensionTimer() {
+            if (tensionTimerInterval) {
+                clearInterval(tensionTimerInterval);
+                tensionTimerInterval = null;
+            }
             isTensionTimerRunning = false;
-            clearInterval(tensionTimerInterval);
-            tensionTimerPausedTime = Date.now() - tensionTimerStartTime;
-            startTensionTimerBtn.style.display = 'inline-block';
-            pauseTensionTimerBtn.style.display = 'none';
         }
 
-        function resetTensionTimer() {
-            pauseTensionTimer();
-            tensionTimerSeconds = calculateTensionTimerDuration();
+        function stopAndClearTensionTimer() { 
+            if (tensionTimerInterval) {
+                clearInterval(tensionTimerInterval);
+                tensionTimerInterval = null;
+            }
+            isTensionTimerRunning = false;
+            tensionTimerSeconds = 0;
+            tensionTimerTotalDurationSet = 0; 
             tensionTimerPausedTime = 0;
-            updateTensionTimerDisplay();
+            updateTensionTimerDisplay(); 
         }
+
 
         function updateCountdownDisplay() {
+            countdownDenominatorInputEl.value = countdownClockDenominator; 
             countdownTextEl.textContent = `${countdownClock} / ${countdownClockDenominator}`;
-            // Ensure denominator is not zero for calculation
-            const currentDenominator = countdownClockDenominator > 0 ? countdownClockDenominator : 1;
-            const fillPercentage = Math.min(1, Math.max(0, countdownClock / currentDenominator));
-            const offset = RING_CIRCUMFERENCE * (1 - fillPercentage);
-            
-            countdownRingFillSegmentEl.style.strokeDasharray = `${RING_CIRCUMFERENCE}`;
-            countdownRingFillSegmentEl.style.strokeDashoffset = `${offset}`;
+            countdownBlockContainerEl.innerHTML = ''; 
 
-            // Color logic based on percentage
+            const currentDenominator = countdownClockDenominator > 0 ? countdownClockDenominator : 1;
             const percentageValue = countdownClock / currentDenominator;
-            
-            countdownRingFillSegmentEl.style.stroke = 'var(--countdown-ring-normal-fill)';
-            countdownTextEl.style.color = 'var(--countdown-text-normal-color)';
+            let blockStateClass = 'normal';
+            let blockTextColor = 'var(--countdown-text-normal-color)';
 
             if (countdownClock === 0 && currentDenominator > 0) {
-                 countdownTextEl.style.color = 'var(--text-secondary)'; // Dim for 0
-            } else if (percentageValue <= 0.25 && countdownClock > 0) { // Danger
-                countdownRingFillSegmentEl.style.stroke = 'var(--countdown-ring-danger-fill)';
-                countdownTextEl.style.color = 'var(--countdown-text-danger-color)';
-            } else if (percentageValue <= 0.5 && countdownClock > 0) { // Warning
-                countdownRingFillSegmentEl.style.stroke = 'var(--countdown-ring-warning-fill)';
-                countdownTextEl.style.color = 'var(--countdown-text-warning-color)';
+                 blockTextColor = 'var(--text-secondary)';
+            } else if (percentageValue <= 0.25 && countdownClock > 0) { 
+                blockStateClass = 'danger';
+                blockTextColor = 'var(--countdown-text-danger-color)';
+            } else if (percentageValue <= 0.5 && countdownClock > 0) { 
+                blockStateClass = 'warning';
+                blockTextColor = 'var(--countdown-text-warning-color)';
             }
+            countdownTextEl.style.color = blockTextColor;
+
+            for (let i = 0; i < currentDenominator; i++) {
+                const block = document.createElement('div');
+                block.classList.add('countdown-block');
+                if (i < countdownClock) {
+                    block.classList.add('active', blockStateClass);
+                }
+                countdownBlockContainerEl.appendChild(block);
+            }
+        }
+
+        function handleDenominatorChange() {
+            if (isRolling || hasRolledThisTurn) {
+                countdownDenominatorInputEl.value = countdownClockDenominator; 
+                return;
+            }
+            let newDenominator = parseInt(countdownDenominatorInputEl.value, 10);
+            if (isNaN(newDenominator) || newDenominator < 1) {
+                newDenominator = 1;
+            }
+            newDenominator = Math.min(newDenominator, 20); 
+            countdownClockDenominator = newDenominator;
+            countdownClock = Math.min(countdownClock, countdownClockDenominator); 
+            updateCountdownDisplay();
         }
 
 
         function adjustCountdownClock(amount) {
             if (isRolling || hasRolledThisTurn) return;
             countdownClock = Math.max(0, countdownClock + amount); 
-            countdownClock = Math.min(countdownClock, countdownClockDenominator); // Cannot exceed denominator
+            countdownClock = Math.min(countdownClock, countdownClockDenominator); 
             updateCountdownDisplay();
         }
         
-        function adjustCountdownDenominator(amount) {
-            if (isRolling || hasRolledThisTurn) return;
-            countdownClockDenominator = Math.max(1, countdownClockDenominator + amount); // Denominator must be at least 1
-            countdownClock = Math.min(countdownClock, countdownClockDenominator); // Adjust current if it exceeds new denominator
-            updateCountdownDisplay();
-        }
-
-        function resetCountdownClock() {
-            if (isRolling || hasRolledThisTurn) return;
-            countdownClockDenominator = 6; // Reset denominator too
+        function resetCountdownClockValues() { 
+            countdownClockDenominator = 6; 
             countdownClock = 3; 
+            countdownDenominatorInputEl.value = countdownClockDenominator;
             updateCountdownDisplay();
         }
 
@@ -912,9 +1187,6 @@
 
         function updateDifficultyDisplay() {
             difficultyDisplay.textContent = difficulty;
-            if (!isTensionTimerRunning) { 
-                 resetTensionTimer(); 
-            }
         }
 
         function determineSingleDieOpportunity(die) {
@@ -929,8 +1201,8 @@
 
         function finalizeOverallOutcome(diceArray) {
             outcomeText = ""; 
-            if (isTensionTimerRunning) {
-                pauseTensionTimer();
+            if (isTensionTimerRunning) { 
+                stopAndClearTensionTimer(); 
             }
             
             if (canPushLuck || canPayPrice || isRedoingRollAfterPrice || pushedLuckDieRoll !== null) {
@@ -1045,7 +1317,7 @@
             indexOfRollToRedo = -1;
             currentSequenceTotalDice = 0;
             
-            resetTensionTimer(); 
+            stopAndClearTensionTimer(); 
             fullUIUpdate();
         }
 
@@ -1097,12 +1369,14 @@
 
         function startRollingJS() {
             if (rollDiceBtn.classList.contains('reset-mode')) {
-                clearAllContributionsAndStatsJS();
+                clearAllContributionsAndStatsJS(); 
                 return;
             }
+
             if (isTensionTimerRunning) {
-                pauseTensionTimer();
+                haltTensionTimer(); 
             }
+            
             if (isRedoingRollAfterPrice) {
                 if (indexOfRollToRedo === -1) {
                     alert("Error: Cannot redo roll, index invalid.");
@@ -1279,15 +1553,32 @@
             }
         });
 
-        startTensionTimerBtn.addEventListener('click', startTensionTimer);
-        pauseTensionTimerBtn.addEventListener('click', pauseTensionTimer);
-        resetTensionTimerBtn.addEventListener('click', resetTensionTimer);
+        durationButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const duration = parseInt(button.dataset.duration, 10);
+                startTensionTimerInternalLogic(duration);
+                durationButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+            });
+        });
         
         decreaseCountdownBtn.addEventListener('click', () => adjustCountdownClock(-1));
         increaseCountdownBtn.addEventListener('click', () => adjustCountdownClock(1));
-        resetCountdownBtn.addEventListener('click', resetCountdownClock);
-        increaseCountdownDenominatorBtn.addEventListener('click', () => adjustCountdownDenominator(1));
-        decreaseCountdownDenominatorBtn.addEventListener('click', () => adjustCountdownDenominator(-1));
+        countdownDenominatorInputEl.addEventListener('change', handleDenominatorChange);
+        countdownDenominatorInputEl.addEventListener('input', (e) => { 
+            if (e.target.value === "" && !isRolling && !hasRolledThisTurn) { 
+                return;
+            }
+            const val = parseInt(e.target.value);
+            if (isNaN(val) && e.target.value !== "") {
+                e.target.value = countdownClockDenominator; 
+            } else if (val > 20) {
+                e.target.value = 20;
+            } else if (val < 1 && e.target.value !== "") {
+                e.target.value = 1;
+            }
+        });
+
 
         openAddPlayerModalBtn.addEventListener('click', () => { addPlayerModalEl.style.display = 'flex'; });
         cancelAddPlayerBtn.addEventListener('click', () => {
@@ -1300,13 +1591,737 @@
         pushLuckBtn.addEventListener('click', handlePushLuck);
         payPriceBtn.addEventListener('click', handlePayPrice);
 
-        setTimeout(() => { // Delay to ensure styles are applied for accurate calculation
+        setTimeout(() => {
             calculateTensionTimerSvgBorderPerimeter();
             fullUIUpdate();
-        }, 100);
-
-
+        }, 200); 
     });
   </script>
+
+  <!-- START OF RULEBOOK HTML CONTENT -->
+  <div id="rulebookDisplaySection" style="padding-top: 40px; padding-bottom: 40px;">
+    <div class="container"> <!-- This class is styled by the rulebook's CSS -->
+        <h1>Expertise Engine</h1>
+        <p class="subtitle">by QuestWorks</p>
+    
+        <p>A professional development-themed tabletop RPG where your expertise shapes every action. Each character has a <span class="accent">HeroType</span> with three unique <span class="accent">Areas of Expertise</span> that define how they solve problems.</p>
+    
+        <p>Just like in the real world, success in Expertise Engine comes from knowing how to apply your expertise and work with others. It's about:</p>
+    
+        <ul>
+          <li>Learning when and how to use your professional skills</li>
+          <li>Figuring out when to lead and when to support</li>
+          <li>Growing beyond your comfort zone</li>
+          <li>Building trust and taking smart risks together</li>
+          <li>Finding creative ways to solve problems</li>
+        </ul>
+    
+    <h2>How to Play</h2>
+    <p>You can do anything that suits your character and comes to mind—fight, persuade, avoid danger, share your expertise, search for clues, etc. But you'll probably have to roll the dice!</p>
+    
+    <div class="note">
+      <strong>NOTE:</strong> Expertise Engine always uses six-sided dice.
+    </div>
+    
+    <h2>Rolling Dice</h2>
+    
+    <h3>Step 1: Declare your action</h3>
+    <p>Think about what your character is good at, and what they would do in this situation. Then ask, how big of a risk do I want to take? The more risky or challenging the task, the more dice you'll be required to roll. You can act alone or strategize as a team.</p>
+    
+    <div class="note">
+      <strong>NOTE:</strong> Risk is contextual. The same goal may be harder or easier depending on your HeroType, the environment, your level, and what's already happened in the story.
+    </div>
+    
+    <hr>
+    <h3>Step 2: Quest Guide sets the difficulty</h3>
+    <p>The Quest Guide sets a difficulty level between 1–9+ dice: 1 being trivial, and 9+ being near impossible. This number represents how much luck it'll take to succeed.<p>
+    
+    <div class="note">
+      <strong>NOTE:</strong> Creating a favorable context with lower-risk moves first (distracting the guards, tossing a smoke bomb, breaking in at night) makes tasks that would be quite difficult (like silently taking out a target) much easier.
+    </div>
+    <p>
+      <strong>GM Tip:</strong> Narrate your difficulty decisions aloud by stacking context clues. This helps players follow your logic and get better at estimating risk.<p>
+    
+      <p><em>Example:</em></p>
+      <blockquote>
+        "You're trying to cross a frozen bridge under fire? The wind is brutal, the bridge is unstable, and there's an archer firing at you from the cliffs. Sounds like 4 dice."
+      </blockquote>
+    
+    <hr>
+    
+    <h3>Step 3: Ready your roll</h3>
+    <p>You <strong>must</strong> roll enough dice to match or exceed the difficulty. You cannot roll if you don't. You can do this by:</p>
+    <ul>
+      <li><strong>Applying expertise</strong>—each expertise used adds 1 die, as long as it clearly applies. Each expertise can be used once per action. Get creative!</li>
+      <li><strong>Triggering special moves</strong>—each one reduces the difficulty by 1—but you must leave at least 1 die to roll.</li>
+    </ul>
+    
+    <div class="note">
+      <strong>NOTE:</strong> You can always roll extra expertise dice to earn more XP—but each die adds risk.
+    </div>
+    
+    <h3>Step 3.5: Get help or scale back</h3>
+    <ul>
+    <p>Can't meet the difficulty?</p>
+      <li>The team can add more expertise dice, or reduce difficulty by applying special moves</li>
+      <li>Adjust the goal to lessen the risk and lower the difficulty.</li>
+      <li>Create better conditions first—set a trap, make a distraction, scout ahead. Then come back and crush it.</li>
+    </ul>
+    
+    <div class="note">
+      <strong>NOTE:</strong> Only dice in the pool can earn XP, so special moves don't.
+    </div>
+    
+    <h3>Step 4: Roll the dice and resolve</h3>
+    <p>Once you decide to roll, the pool is locked, and all dice must be rolled sequentially in the order they were committed. Stop rolling right away when a 6 or a 1 is rolled.</p>
+    <ul>
+        <li><strong>6:</strong> Success—the goal is achieved, cleanly</li>
+        <li><strong>1:</strong> Failure—face consequences, loss, or harm</li>
+        <li><strong>2–5s only:</strong> Look to the highest result</li>
+        <ul>
+            <li><strong>2–3:</strong> Failure with a silver lining</li>
+            <li><strong>4–5:</strong> Success with a complication</li>
+        </ul>
+    </ul>
+    
+    <div class="note">
+      <strong>NOTE:</strong> More dice means more chances for a higher result—but also more chances for a 1!
+    </div>
+    
+    <p><strong>XP:</strong> Each player gains 10 XP for each die they personally rolled. Dice that aren't rolled due to a 6 or 1 don't grant XP.</p>
+    <p>All helpers share in both the outcome and the risk, even if they only contributed special moves.<p>
+    
+    <h3>Pacing</h3>
+    <p>To keep things tense, the Quest Guide may set a <strong>Countdown Clock</strong>—a limit on how many <em>actions</em> the party can take before something big happens. This helps incentivize players to take higher-risk actions.</p>
+    <p><em>Example:</em> You have 6 rolls before the cult finishes their ritual. Rolling a lucky 6 could extend the clock, while a 1 could speed it up.</p>
+    
+    <p>In addition, every roll is governed by a <strong>Tension Timer</strong>—a tool for managing pacing and introducing time-based challenges. The timer adds urgency and pressure to player decisions by providing a limited window to:</p>
+    <ul>
+      <li><strong>React</strong> to a situation (30 seconds - shortest duration)</li>
+      <li><strong>Sync</strong> efforts or make a quick collective decision (60 seconds - medium duration)</li>
+      <li><strong>Plan</strong> next moves more thoroughly (90 seconds - longest duration)</li>
+    </ul>
+    <p>The Quest Guide sets the timer as soon as the situation is described. Within the allotted time, players must declare their intent, learn the difficulty, AND build their dice pool. If they fail to complete all steps before time runs out, the action fails automatically.</p>
+    
+        <h2>Beyond Failure & Success</h2>
+        <p>Once per session, you may do the following:</p>
+        <p><strong>Push Your Luck:</strong> After rolling a 6, you can roll another die to press your advantage—but risk undoing your success if you fail.</p>
+        <p><strong>Pay a Price:</strong> If a 1 is rolled, you can pay a price to avoid the instant failure and continue rolling. Pay a price by sacrificing something important to you that fits the context—like your supplies, your reputation, or extra health.</p>
+    
+    
+        <h2>Combat & Health</h2>
+        <p>Combat is simple and high-stakes. Describe what you're trying to do (gain a tactical advantage, disarm, wound, decapitate, etc.) and the Quest Guide will set the difficulty—just like any other action.
+    <br><br>
+        Enemies are defeated when it makes sense to the Quest Guide that they would be, and they deal as much damage to players as makes sense to the Quest Guide considering the context, their might, and the player's roll results. 1 damage for glancing blows, up to 6 damage for beyond-lethal ones.</p>
+        
+    <div class="note">
+      <strong>NOTE:</strong> This system doesn't use stat modifiers or numerical penalties to rolls. Damage is tracked through health and armor. Any consequences beyond that are fictional—like being separated, disarmed, or stuck—until you recover or regroup.
+    </div>
+    
+    
+        <div>
+          <h3>Armor</h3>
+          <p>Armor can absorb damage, point for point. When it runs out, your health is at risk. Damaged armor is useless until it is repaired.</p>
+          
+              <div class="note">
+          <strong>NOTE:</strong> Opponents and NPCs never roll. Only players do.
+        </div>
+        
+    <h3>Defeat</h3>
+    <p>At 0 HP, you're temporarily out of action—with lasting consequences to your wellbeing. Recovery requires proper rest or healing.</p>
+    
+    <p>You have two options instead of simply being knocked out:</p>
+    
+    <p><strong>Last Stand:</strong> When you hit 0 HP, you may immediately succeed at a final heroic action of medium difficulty before you're knocked out. Choose one of your expertise to fuel the move—it becomes completely unavailable until you complete a quest to restore it. No roll required.</p>
+    
+    <p><strong style="color:darkred;">A Hero's Death (Level 7+):</strong> If your character is level 7 or higher, you may choose death. In exchange for the ultimate sacrifice, you succeed at an impossible task—something no combination of rolls, moves, or strategy could have accomplished. The cost: your character dies permanently, and you'll start over with a brand-new character at level 1.</p>
+    
+    
+        <h2>Edge</h2>
+        <p>Each character has one of these Edges, granting a once-per-session special move:</p>
+        <ul>
+          <li><strong>Plotter:</strong> "I already planned for this."</li>
+          <li><strong>Crafter:</strong> "I can make a gadget for this…"</li>
+          <li><strong>Driver:</strong> "I beat them to it!"</li>
+          <li><strong>Spotter:</strong> "I know a better way…"</li>
+        </ul>
+    
+        <h2>Character Sheets</h2>
+    
+        <!-- The Rogue -->
+        <div class="character-sheet">
+          <h3>The Rogue</h3>
+    
+          <h4>Basic Information</h4>
+          <ul>
+            <li><strong>Name:</strong> Enter your info</li>
+            <li><strong>Level:</strong> 1</li>
+            <li><strong>Health:</strong> 3 points </li>
+          </ul>
+    
+          <h4>Areas of Expertise</h4>
+          <div class="expertise-area">
+            <strong>1. Finesse</strong>
+            <p><em>Sneaking, acrobatics, lockpicking, sleight of hand, precise strikes, careful words—when delicate touch beats brute force. You're agile and have killer reflexes.</em></p>
+          </div>
+          <div class="expertise-area">
+            <strong>2. Insight</strong>
+            <p><em>Assessing situations, finding weak points, spotting traps, spying, identifying patterns—you see opportunities that others miss.</em></p>
+          </div>
+          <div class="expertise-area">
+            <strong>3. Adaptability</strong>
+            <p><em>Street smarts. Blending in. Manipulating situations. Doing things that have never been done before.</em></p>
+          </div>
+    
+          <h4>Special Moves</h4>
+          <ul>
+            <li>
+              <strong>Roguish Talent:</strong> Choose one talent (use this during play):
+              <div class="dropdown">
+                <select name="roguish-talent">
+                  <option value="" disabled selected>Select a Talent</option>
+                  <option value="Sneaking">Sneaking</option>
+                  <option value="Lying">Lying</option>
+                  <option value="Climbing">Climbing</option>
+                  <option value="Stealing">Stealing</option>
+                </select>
+              </div>
+            </li>
+            <li>
+              <strong>Mastermind:</strong> When a teammate follows a plan you set up during a heist, infiltration, or sabotage.
+            </li>
+                    <li>
+              <strong>Backstab:</strong> When you attack from the shadows.
+            </li>
+          </ul>
+    
+          <h4>Gear</h4>
+          <h5>Equipment</h5>
+          <ul class="equipment-list">
+            <li>Coin: 10</li>
+            <li>Leather Armor (1 armor points)</li>
+            <li>Twin Daggers</li>
+            <li>3 Throwing Knives (Restock as needed)</li>
+            <li>Adventure Gear: 5 uses (e.g., rope, tools, etc.)</li>
+          </ul>
+          <h5>Inventory</h5>
+          <div class="text-input">
+            <input type="text" name="inventory" placeholder="Write down items you pick up here">
+          </div>
+          <h5>Journal</h5>
+          <div class="text-input">
+            <input type="text" name="journal" placeholder="Notes, observations, plans">
+          </div>
+        </div>
+    
+        <!-- The Mystic -->
+        <div class="character-sheet">
+          <h3>The Mystic</h3>
+    
+          <h4>Basic Information</h4>
+          <ul>
+            <li><strong>Name:</strong> Enter your info</li>
+            <li><strong>Level:</strong> 1</li>
+            <li><strong>Health:</strong> 3 points </li>
+            <li><strong>Regeneration:</strong> In combat, you can use a turn to regenerate one health.</li>
+          </ul>
+    
+          <h4>Areas of Expertise</h4>
+          <div class="expertise-area">
+            <strong>1. Connection</strong>
+            <p><em>You are inextricably linked to all of nature—flora, fauna, and fungi.</em></p>
+          </div>
+          <div class="expertise-area">
+            <strong>2. Balance</strong>
+            <p><em>You understand how everything fits together—people, ideas, places, environments.</em></p>
+          </div>
+          <div class="expertise-area">
+            <strong>3. Flow</strong>
+            <p><em>Change, energy, and transformation. You are one with it.</em></p>
+          </div>
+    
+          <h4>Special Moves</h4>
+          <ul>
+            <li>
+              <strong>Animal Whisperer:</strong> When you want to speak with an animal.
+            </li>
+            <li>
+              <strong>Shape Shift:</strong> When you turn into a non-magical animal and act in a way that suits that form.
+            </li>
+            <li>
+              <strong>Boon:</strong> When you alter the natural landscape around you to help your team reach a hard-to-access location.
+            </li>
+          </ul>
+    
+          <h4>Gear</h4>
+          <h5>Equipment</h5>
+          <ul class="equipment-list">
+            <li>Coin: 5</li>
+            <li>Robes - No Armor Points</li>
+            <li>Steel-Pointed Staff</li>
+            <li>Herbs: 5 uses (heals 1 point of health per use)</li>
+          </ul>
+          <h5>Inventory</h5>
+          <div class="text-input">
+            <input type="text" name="inventory" placeholder="Write down items you pick up here">
+          </div>
+          <h5>Journal</h5>
+          <div class="text-input">
+            <input type="text" name="journal" placeholder="Notes, observations, plans">
+          </div>
+        </div>
+    
+        <!-- The Ranger -->
+        <div class="character-sheet">
+          <h3>The Ranger</h3>
+    
+          <h4>Basic Information</h4>
+          <ul>
+            <li><strong>Name:</strong> Enter your info</li>
+            <li><strong>Level:</strong> 1</li>
+            <li><strong>Health:</strong> 3 points</li>
+          </ul>
+    
+          <h4>Animal Companion</h4>
+          <div class="text-input">
+            <input type="text" name="animal-companion" placeholder="My animal is a">
+          </div>
+    
+          <h4>Areas of Expertise</h4>
+          <div class="expertise-area">
+            <strong>1. Environment</strong>
+            <p><em>Your familiarity with the wilds—and the creatures that inhabit them—make you a skilled tracker, scout, hunter.</em></p>
+          </div>
+          <div class="expertise-area">
+            <strong>2. Vigilance</strong>
+            <p><em>Your watchful eye, survivalist knowledge, and swift reflexes help you keep people alive in harsh conditions. Think archery, trap-setting, crafting, or standing guard.</em></p>
+          </div>
+          <div class="expertise-area">
+            <strong>3. Direction</strong>
+            <p><em>Your instinct for navigation guides you through uncertain territory and sharpens your aim.</em></p>
+          </div>
+    
+          <h4>Special Moves</h4>
+          <ul>
+            <li>
+              <strong>Always Alert:</strong> When you enter combat and act before anyone else.
+            </li>
+            <li>
+              <strong>Tools of the Trade:</strong> When you need to make a specific weapon, tool, or substance.
+            </li>
+            <li>
+              <strong>Trusty Bow:</strong> When you shoot an arrow in a moment of crisis.
+            </li>
+          </ul>
+    
+          <h4>Gear</h4>
+          <h5>Equipment</h5>
+          <ul class="equipment-list">
+            <li>Coin: 5</li>
+            <li>Leather Armor - 1 Armor Points</li>
+            <li>Spear (throwable)</li>
+            <li>Hunter's Bow with a bundle of 5 arrows (ammo = how many times you can miss)</li>
+            <li>Adventure Gear: 5 uses</li>
+          </ul>
+          <h5>Inventory</h5>
+          <div class="text-input">
+            <input type="text" name="inventory" placeholder="Write down items you pick up here">
+          </div>
+          <h5>Journal</h5>
+          <div class="text-input">
+            <input type="text" name="journal" placeholder="Notes, observations, plans">
+          </div>
+        </div>
+    
+        <!-- The Maverick -->
+        <div class="character-sheet">
+          <h3>The Maverick</h3>
+    
+          <h4>Basic Information</h4>
+          <ul>
+            <li><strong>Name:</strong> Enter your info</li>
+            <li><strong>Level:</strong> 1</li>
+            <li><strong>Health:</strong> 3 points max</li>
+          </ul>
+    
+          <h4>Areas of Expertise</h4>
+          <div class="expertise-area">
+            <strong>1. Risk</strong>
+            <p><em>Odds, chances, and big swings. Your second nature.</em></p>
+          </div>
+          <div class="expertise-area">
+            <strong>2. Chaos</strong>
+            <p><em>Disorder. Mayhem. Upheaval. Revolution. It's like your oxygen.</em></p>
+          </div>
+          <div class="expertise-area">
+            <strong>3. Power</strong>
+            <p><em>Who has it, who wants it, who's gonna get it next. And, if something takes brute force, you're the one for the job.</em></p>
+          </div>
+    
+          <h4>Special Moves</h4>
+    <ul>
+      <li>
+        <strong>Vice:</strong> When you give into your vice.<br>
+        <strong>Choose your vice:</strong>
+        <div class="dropdown">
+          <select name="vice">
+            <option value="" disabled selected>What's your vice?</option>
+            <option value="starting-fights">Starting fights</option>
+            <option value="breaking-rules">Breaking rules</option>
+            <option value="showing-off">Showing off</option>
+            <option value="demanding-attention">Demanding attention</option>
+          </select>
+        </div>
+      </li>
+            <li>
+              <strong>Bold Gambit:</strong> When you act on an aggressive, unconventional plan with total confidence.
+            </li>
+       
+            <li>
+              <strong>Rage:</strong> When a teammate gets hurt and you strike back immediately.
+            </li>
+          </ul>
+    
+          <h4>Gear</h4>
+          <h5>Equipment</h5>
+          <ul class="equipment-list">
+            <li>Coin: 5</li>
+            <li>Chainmail - 3 Armor Points</li>
+            <li>Great Axe</li>
+            <li>Adventure Gear: 5 uses</li>
+          </ul>
+          <h5>Inventory</h5>
+          <div class="text-input">
+            <input type="text" name="inventory" placeholder="Write down items you pick up here">
+          </div>
+          <h5>Journal</h5>
+          <div class="text-input">
+            <input type="text" name="journal" placeholder="Notes, observations, plans">
+          </div>
+        </div>
+    
+        <!-- The Vanguard -->
+        <div class="character-sheet">
+          <h3>The Vanguard</h3>
+    
+          <h4>Basic Information</h4>
+          <ul>
+            <li><strong>Name:</strong> Enter your info</li>
+            <li><strong>Level:</strong> 1</li>
+            <li><strong>Health:</strong> 3 points </li>
+          </ul>
+    
+          <h4>Areas of Expertise</h4>
+          <div class="expertise-area">
+            <strong>1. Leadership</strong>
+            <p><em>Commanding attention, rallying allies, intimidating foes.</em></p>
+          </div>
+          <div class="expertise-area">
+            <strong>2. Tactics</strong>
+            <p><em>You know your way around conflict—and any weapon, tool, or technique involved.</em></p>
+          </div>
+          <div class="expertise-area">
+            <strong>3. Strategy</strong>
+            <p><em>You can read and predict the flow of conflict.</em></p>
+          </div>
+    
+          <h4>Special Moves</h4>
+          <ul>
+            <li>
+              <strong>Signature Weapon:</strong> You carry a unique weapon. Using its special quality counts as a special move.
+         <div class="dropdown">
+                <select name="signature-weapon">
+                  <option value="" disabled selected>Select a Weapon</option>
+                  <option value="Greatsword">Greatsword — When you overpower</option>
+                  <option value="Stiletto">Stiletto — When you pierce</option>
+                  <option value="Warhammer">Warhammer — When you smash</option>
+                  <option value="Halberd">Halberd — When you reach</option>
+                </select>
+              </div>
+            <li>
+              <strong>Charge:</strong> When you see a chance to turn the tide of battle.
+            </li>
+            <li>
+              <strong>Protector:</strong> When you stand in direct defense of a teammate.
+            </li>
+          </ul>
+    
+          <h4>Gear</h4>
+          <h5>Equipment</h5>
+          <ul class="equipment-list">
+            <li>Coin: 22</li>
+            <li>Plate Armor – 2 Armor Points</li>
+            <li>Shield</li>
+            <li><em>Enter Signature Weapon name here</em></li>
+            <li>Adventure Gear: 5 uses</li>
+          </ul>
+          <h5>Inventory</h5>
+          <div class="text-input">
+            <input type="text" name="inventory" placeholder="Write down items you pick up here">
+          </div>
+          <h5>Journal</h5>
+          <div class="text-input">
+            <input type="text" name="journal" placeholder="Notes, observations, plans">
+          </div>
+        </div>
+    
+        <!-- The Wizard -->
+        <div class="character-sheet">
+          <h3>The Magister</h3>
+    
+          <h4>Basic Information</h4>
+          <ul>
+            <li><strong>Name:</strong> Enter your info</li>
+            <li><strong>Level:</strong> 1</li>
+            <li><strong>Health:</strong> 3 points </li>
+            <li><strong>Arcane Shield:</strong> You have a magical shield that passively blocks 1 damage.</li>
+          </ul>
+    
+          <h4>Areas of Expertise</h4>
+          <div class="expertise-area">
+            <strong>1. Theory</strong>
+            <p><em>Casting spells, understanding magical forces, and applying your academic or arcane knowledge.</em></p>
+          </div>
+          <div class="expertise-area">
+            <strong>2. Analysis</strong>
+            <p><em>Breaking puzzles, revealing illusions, solving riddles—when complex situations need solving.</em></p>
+          </div>
+          <div class="expertise-area">
+            <strong>3. Research</strong>
+            <p><em>You're a quick study and learned scholar. If it happened, might happen, or could happen, you've probably read about it.</em></p>
+          </div>
+    
+          <h4>Special Moves</h4>
+          <ul>
+            <li>
+              <strong>Magic Specialty:</strong> Choose your specialty:
+              <div class="dropdown">
+                <select name="magic-specialty">
+                  <option value="" disabled selected>Select a Specialty</option>
+                  <option value="create-illusions">Create illusions</option>
+                  <option value="enchant-objects">Enchant objects</option>
+                  <option value="manipulate-minds">Manipulate minds</option>
+                  <option value="reanimate-dead">Reanimate the dead</option>
+                </select>
+              </div>
+            </li>
+            <li>
+              <strong>Magic Bolt:</strong> When you shoot pure magic (ice, fire, psychic—you decide!) at a target.
+            </li>
+            <li>
+              <strong>Wise Wizard:</strong> When a teammate asks for your help, your advice is always relevant.
+            </li>
+          </ul>
+    
+          <h4>Gear</h4>
+          <h5>Equipment</h5>
+          <ul class="equipment-list">
+            <li>Coin: 5</li>
+            <li>Robes - No Armor Points</li>
+            <li>Staff or Wand (Describe it!)</li>
+            <li>Bag of Books: 5 uses (Add a die when you share your expertise)</li>
+          </ul>
+          <h5>Inventory</h5>
+          <div class="text-input">
+            <input type="text" name="inventory" placeholder="Write down items you pick up here">
+          </div>
+          <h5>Journal</h5>
+          <div class="text-input">
+            <input type="text" name="journal" placeholder="Notes, observations, plans">
+          </div>
+        </div>
+    
+        <!-- The Saint -->
+        <div class="character-sheet">
+          <h3>The Saint</h3>
+    
+          <h4>Basic Information</h4>
+          <ul>
+            <li><strong>Name:</strong> Enter your info</li>
+            <li><strong>Level:</strong> 1</li>
+            <li><strong>Health:</strong> 3 points </li>
+          </ul>
+    
+          <h4>Areas of Expertise</h4>
+          <div class="expertise-area">
+            <strong>1. Faith</strong>
+            <p><em>Support, belief, protection, and healing. Your connection to the divine.</em></p>
+          </div>
+          <div class="expertise-area">
+            <strong>2. Spirit</strong>
+            <p><em>Birth, death, the afterlife—you're deeply familiar with it all.</em></p>
+          </div>
+          <div class="expertise-area">
+            <strong>3. Empathy</strong>
+            <p><em>You are emotionally, mentally, and physically attuned—extraordinarily so.</em></p>
+          </div>
+    
+          <h4>Special Moves</h4>
+    <ul>
+      <li>
+        <strong>BLESSED ONE:</strong> When you channel your god's power to make magic within their domain or pray for information.
+            <div class="text-input">
+          <select name="deity-name">
+            <option value="">Choose your god's domain</option>
+            <option value="Ignis">Light and Truth</option>
+            <option value="Noctis">Shadow and Deceit</option>
+            <option value="Tempo">Storm and Chaos</option>
+            <option value="Kronos">Fate and Time</option>
+          </select>
+        </div>
+      </li>
+      <li>
+        <strong>HOLY WARD:</strong> When you protect or heal someone—or something—using divine magic.
+      </li>
+    </ul>
+    
+          <h4>Gear</h4>
+          <h5>Equipment</h5>
+          <ul class="equipment-list">
+            <li>Coin: 5</li>
+            <li>Robes (Describe them!) – No Armor Points</li>
+            <li>Divine Staff (Describe it!)</li>
+            <li>Poultices & Herbs: 2 uses (Heals 1 point of health per use)</li>
+          </ul>
+          <h5>Inventory</h5>
+          <div class="text-input">
+            <input type="text" name="inventory" placeholder="Write down items you pick up here">
+          </div>
+          <h5>Journal</h5>
+          <div class="text-input">
+            <input type="text" name="journal" placeholder="Notes, observations, plans">
+          </div>
+        </div>
+    
+        <!-- The Charmer -->
+        <div class="character-sheet">
+          <h3>The Charmer</h3>
+    
+          <h4>Basic Information</h4>
+          <ul>
+            <li><strong>Name:</strong> Enter your info</li>
+            <li><strong>Level:</strong> 1</li>
+            <li><strong>Health:</strong> 3 points </li>
+          </ul>
+    
+          <h4>Areas of Expertise</h4>
+          <div class="expertise-area">
+            <strong>1. Influence</strong>
+            <p><em>You just… get people. You know what makes them tick.</em></p>
+          </div>
+          <div class="expertise-area">
+            <strong>2. Expression</strong>
+                    <p><em>The arts, the emotions, the performance—you've mastered them.</em></p>
+          </div>
+          <div class="expertise-area">
+            <strong>3. Culture</strong>
+            <p><em>You can show up anywhere and fit right in. You've been there, you've done that—you've probably even heard songs about it.</em></p>
+          </div>
+    
+          <h4>Special Moves</h4>
+    <ul>
+      <li>
+        <strong>Arcane Art:</strong> When you perform art to create a magical effect–influence, healing, empowerment, and more.
+        <div class="text-input">
+          <label for="art-form">Art Form:</label>
+          <select name="art-form" id="art-form">
+            <option value="music">Music</option>
+            <option value="movement">Movement</option>
+            <option value="theatrics">Theatrics</option>
+            <option value="poetry">Poetry</option>
+          </select>
+        </div>
+      </li>
+      <li>
+        <strong>Been There:</strong> When you reference a person, place, or trend to gain trust or open doors.
+      </li>
+    </ul>
+    
+          <h4>Gear</h4>
+          <h5>Equipment</h5>
+          <ul class="equipment-list">
+            <li>Coin: 5</li>
+            <li>Leather Armor – 1 Armor Point</li>
+            <li>Needlepoint Sword</li>
+            <li>Pipeleaf: 5 uses (extra die to persuasion rolls when smoked with someone)</li>
+          </ul>
+          <h5>Inventory</h5>
+          <div class="text-input">
+            <input type="text" name="inventory" placeholder="Write down items you pick up here">
+          </div>
+          <h5>Journal</h5>
+          <div class="text-input">
+            <input type="text" name="journal" placeholder="Notes, observations, plans">
+          </div>
+        </div>
+    
+        <!-- The Warden -->
+        <div class="character-sheet">
+          <h3>The Warden</h3>
+    
+          <h4>Basic Information</h4>
+          <ul>
+            <li><strong>Name:</strong> Enter your info</li>
+            <li><strong>Level:</strong> 1</li>
+            <li><strong>Health:</strong> 3 points</li>
+          </ul>
+    
+          <h4>Areas of Expertise</h4>
+          <div class="expertise-area">
+            <strong>1. Justice</strong>
+            <p><em>You know every law and code—and when to break them for the greater good.</em></p>
+          </div>
+          <div class="expertise-area">
+            <strong>2. Judgment</strong>
+            <p><em>You can always tell what's… off.</em></p>
+          </div>
+          <div class="expertise-area">
+            <strong>3. Control</strong>
+            <p><em>You naturally command respect and inspire order. Your movements project focus and discipline in all things—from speech to steel.</em></p>
+          </div>
+    
+          <h4>Special Moves</h4>
+          <ul>
+            <li>
+              <strong>Virtuous:</strong> When you act in a way that honors your vow:
+               <div class="dropdown">
+                <select name="virtuous">
+                  <option value="" disabled selected>SELECT</option>
+                  <option value="Mercy">Mercy</option>
+                  <option value="Loyalty">Loyalty</option>
+                  <option value="Peace">Peace</option>
+                </select>
+              </div>
+            </li>
+            <li>
+              <strong>Places, Everyone:</strong> When a teammate follows your direction in combat.
+            </li>
+          </ul>
+    
+          <h4>Gear</h4>
+          <h5>Equipment</h5>
+          <ul class="equipment-list">
+            <li>Coin: 5</li>
+            <li>Weapons & Armor:
+              <ul>
+                <li>Scale Armor – 2 Armor Points</li>
+                <li>Longsword</li>
+              </ul>
+            </li>
+            <li>Bandages: 5 uses (heals 1 point of health per use)</li>
+          </ul>
+          <h5>Inventory</h5>
+          <div class="text-input">
+            <input type="text" name="inventory" placeholder="Write down items you pick up here">
+          </div>
+          <h5>Journal</h5>
+          <div class="text-input">
+            <input type="text" name="journal" placeholder="Notes, observations, plans">
+          </div>
+        </div>
+    
+      </div>
+  </div>
+  <!-- END OF RULEBOOK HTML CONTENT -->
 </body>
 </html>
