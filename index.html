@@ -1598,9 +1598,137 @@
     });
   </script>
 
-  <!-- START OF RULEBOOK HTML CONTENT -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expertise Engine Rulebook</title>
+    <style>
+        body {
+            font-family: Georgia, serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f7f4;
+            color: #333;
+        }
+        
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #8B4513;
+            text-align: center;
+            border-bottom: 3px solid #8B4513;
+            padding-bottom: 10px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            font-style: italic;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        h2 {
+            color: #8B4513;
+            border-bottom: 2px solid #D2B48C;
+            padding-bottom: 5px;
+            margin-top: 30px;
+        }
+        
+        h3 {
+            color: #A0522D;
+            margin-top: 25px;
+        }
+        
+        .accent {
+            font-weight: bold;
+            color: #8B4513;
+        }
+        
+        .note {
+            background-color: #f0f8ff;
+            border-left: 4px solid #4682b4;
+            padding: 10px;
+            margin: 15px 0;
+            font-style: italic;
+        }
+        
+        blockquote {
+            background-color: #f9f9f9;
+            border-left: 4px solid #ccc;
+            margin: 0;
+            padding: 10px 20px;
+            font-style: italic;
+        }
+        
+        .character-sheet {
+            border: 2px solid #8B4513;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            background-color: #fefefe;
+        }
+        
+        .character-sheet h3 {
+            margin-top: 0;
+            color: #8B4513;
+            text-align: center;
+            border-bottom: 1px solid #D2B48C;
+            padding-bottom: 10px;
+        }
+        
+        .expertise-area {
+            background-color: #f8f8f8;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 4px;
+            border-left: 3px solid #8B4513;
+        }
+        
+        .equipment-list {
+            background-color: #f8f8f8;
+            padding: 15px;
+            border-radius: 4px;
+        }
+        
+        .dropdown select {
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin: 5px 0;
+            min-width: 200px;
+        }
+        
+        .text-input input {
+            width: 100%;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin: 5px 0;
+        }
+        
+        hr {
+            border: none;
+            border-top: 1px solid #D2B48C;
+            margin: 20px 0;
+        }
+        
+        ul li {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
   <div id="rulebookDisplaySection" style="padding-top: 40px; padding-bottom: 40px;">
-    <div class="container"> <!-- This class is styled by the rulebook's CSS -->
+    <div class="container">
         <h1>Expertise Engine</h1>
         <p class="subtitle">by QuestWorks</p>
     
@@ -1634,13 +1762,13 @@
     
     <hr>
     <h3>Step 2: Quest Guide sets the difficulty</h3>
-    <p>The Quest Guide sets a difficulty level between 1–9+ dice: 1 being trivial, and 9+ being near impossible. This number represents how much luck it'll take to succeed.<p>
+    <p>The Quest Guide sets a difficulty level between 1–9+ dice: 1 being trivial, and 9+ being near impossible. This number represents how much luck it'll take to succeed.</p>
     
     <div class="note">
       <strong>NOTE:</strong> Creating a favorable context with lower-risk moves first (distracting the guards, tossing a smoke bomb, breaking in at night) makes tasks that would be quite difficult (like silently taking out a target) much easier.
     </div>
     <p>
-      <strong>GM Tip:</strong> Narrate your difficulty decisions aloud by stacking context clues. This helps players follow your logic and get better at estimating risk.<p>
+      <strong>GM Tip:</strong> Narrate your difficulty decisions aloud by stacking context clues. This helps players follow your logic and get better at estimating risk.</p>
     
       <p><em>Example:</em></p>
       <blockquote>
@@ -1689,7 +1817,7 @@
     </div>
     
     <p><strong>XP:</strong> Each player gains 10 XP for each die they personally rolled. Dice that aren't rolled due to a 6 or 1 don't grant XP.</p>
-    <p>All helpers share in both the outcome and the risk, even if they only contributed special moves.<p>
+    <p>All helpers share in both the outcome and the risk, even if they only contributed special moves.</p>
     
     <h3>Pacing</h3>
     <p>To keep things tense, the Quest Guide may set a <strong>Countdown Clock</strong>—a limit on how many <em>actions</em> the party can take before something big happens. This helps incentivize players to take higher-risk actions.</p>
@@ -1745,6 +1873,21 @@
           <li><strong>Driver:</strong> "I beat them to it!"</li>
           <li><strong>Spotter:</strong> "I know a better way…"</li>
         </ul>
+
+        <h2>Downtime & Character Development</h2>
+        <p>When characters have significant downtime, they can <strong>switch</strong> certain abilities. You can only have one talent, specialty, weapon, etc. at a time—this isn't learning new options, it's shifting focus:</p>
+        <ul>
+          <li><strong>Rogues</strong> can switch their roguish talent</li>
+          <li><strong>Vanguards</strong> can retrain with a different signature weapon</li>
+          <li><strong>Mavericks</strong> can shift their destructive vice</li>
+          <li><strong>Saints</strong> can recommit to a different deity</li>
+          <li><strong>Magisters</strong> can switch their magic specialty</li>
+          <li><strong>Charmers</strong> can switch their arcane art form</li>
+          <li><strong>Wardens</strong> can embrace a different virtue</li>
+          <li><strong>Rangers</strong> can bond with a different animal companion</li>
+          <li><strong>Mystics</strong> can attune to a new element</li>
+        </ul>
+        <p>How they accomplish this is up to the players and Quest Guide—whether through training, study, reflection, life experiences, or other meaningful character moments.</p>
     
         <h2>Character Sheets</h2>
     
@@ -1790,7 +1933,7 @@
             <li>
               <strong>Mastermind:</strong> When a teammate follows a plan you set up during a heist, infiltration, or sabotage.
             </li>
-                    <li>
+            <li>
               <strong>Backstab:</strong> When you attack from the shadows.
             </li>
           </ul>
@@ -1798,7 +1941,6 @@
           <h4>Gear</h4>
           <h5>Equipment</h5>
           <ul class="equipment-list">
-            <li>Coin: 10</li>
             <li>Leather Armor (1 armor points)</li>
             <li>Twin Daggers</li>
             <li>3 Throwing Knives (Restock as needed)</li>
@@ -1843,20 +1985,28 @@
           <h4>Special Moves</h4>
           <ul>
             <li>
+              <strong>Elemental Affinity:</strong> When you connect to your element:
+              <div class="dropdown">
+                <select name="elemental-affinity">
+                  <option value="" disabled selected>Choose your element</option>
+                  <option value="earth">Earth — stone, soil, plants, stability</option>
+                  <option value="water">Water — flow, adaptation, healing</option>
+                  <option value="air">Air — wind, freedom, change</option>
+                  <option value="fire">Fire — passion, transformation, destruction/renewal</option>
+                </select>
+              </div>
+            </li>
+            <li>
               <strong>Animal Whisperer:</strong> When you want to speak with an animal.
             </li>
             <li>
               <strong>Shape Shift:</strong> When you turn into a non-magical animal and act in a way that suits that form.
-            </li>
-            <li>
-              <strong>Boon:</strong> When you alter the natural landscape around you to help your team reach a hard-to-access location.
             </li>
           </ul>
     
           <h4>Gear</h4>
           <h5>Equipment</h5>
           <ul class="equipment-list">
-            <li>Coin: 5</li>
             <li>Robes - No Armor Points</li>
             <li>Steel-Pointed Staff</li>
             <li>Herbs: 5 uses (heals 1 point of health per use)</li>
@@ -1917,7 +2067,6 @@
           <h4>Gear</h4>
           <h5>Equipment</h5>
           <ul class="equipment-list">
-            <li>Coin: 5</li>
             <li>Leather Armor - 1 Armor Points</li>
             <li>Spear (throwable)</li>
             <li>Hunter's Bow with a bundle of 5 arrows (ammo = how many times you can miss)</li>
@@ -1976,7 +2125,6 @@
             <li>
               <strong>Bold Gambit:</strong> When you act on an aggressive, unconventional plan with total confidence.
             </li>
-       
             <li>
               <strong>Rage:</strong> When a teammate gets hurt and you strike back immediately.
             </li>
@@ -1985,7 +2133,6 @@
           <h4>Gear</h4>
           <h5>Equipment</h5>
           <ul class="equipment-list">
-            <li>Coin: 5</li>
             <li>Chainmail - 3 Armor Points</li>
             <li>Great Axe</li>
             <li>Adventure Gear: 5 uses</li>
@@ -2038,6 +2185,7 @@
                   <option value="Halberd">Halberd — When you reach</option>
                 </select>
               </div>
+            </li>
             <li>
               <strong>Charge:</strong> When you see a chance to turn the tide of battle.
             </li>
@@ -2049,7 +2197,6 @@
           <h4>Gear</h4>
           <h5>Equipment</h5>
           <ul class="equipment-list">
-            <li>Coin: 22</li>
             <li>Plate Armor – 2 Armor Points</li>
             <li>Shield</li>
             <li><em>Enter Signature Weapon name here</em></li>
@@ -2065,7 +2212,7 @@
           </div>
         </div>
     
-        <!-- The Wizard -->
+        <!-- The Magister -->
         <div class="character-sheet">
           <h3>The Magister</h3>
     
@@ -2116,7 +2263,6 @@
           <h4>Gear</h4>
           <h5>Equipment</h5>
           <ul class="equipment-list">
-            <li>Coin: 5</li>
             <li>Robes - No Armor Points</li>
             <li>Staff or Wand (Describe it!)</li>
             <li>Bag of Books: 5 uses (Add a die when you share your expertise)</li>
@@ -2159,26 +2305,25 @@
           <h4>Special Moves</h4>
     <ul>
       <li>
-        <strong>BLESSED ONE:</strong> When you channel your god's power to make magic within their domain or pray for information.
-            <div class="text-input">
+        <strong>Blessed One:</strong> When you channel your god's power to make magic within their domain or pray for information.
+            <div class="dropdown">
           <select name="deity-name">
             <option value="">Choose your god's domain</option>
-            <option value="Ignis">Light and Truth</option>
-            <option value="Noctis">Shadow and Deceit</option>
-            <option value="Tempo">Storm and Chaos</option>
-            <option value="Kronos">Fate and Time</option>
+            <option value="light-truth">Light and Truth</option>
+            <option value="shadow-deceit">Shadow and Deceit</option>
+            <option value="storm-chaos">Storm and Chaos</option>
+            <option value="fate-time">Fate and Time</option>
           </select>
         </div>
       </li>
       <li>
-        <strong>HOLY WARD:</strong> When you protect or heal someone—or something—using divine magic.
+        <strong>Holy Ward:</strong> When you protect or heal someone—or something—using divine magic.
       </li>
     </ul>
     
           <h4>Gear</h4>
           <h5>Equipment</h5>
           <ul class="equipment-list">
-            <li>Coin: 5</li>
             <li>Robes (Describe them!) – No Armor Points</li>
             <li>Divine Staff (Describe it!)</li>
             <li>Poultices & Herbs: 2 uses (Heals 1 point of health per use)</li>
@@ -2211,7 +2356,7 @@
           </div>
           <div class="expertise-area">
             <strong>2. Expression</strong>
-                    <p><em>The arts, the emotions, the performance—you've mastered them.</em></p>
+            <p><em>The arts, the emotions, the performance—you've mastered them.</em></p>
           </div>
           <div class="expertise-area">
             <strong>3. Culture</strong>
@@ -2221,8 +2366,8 @@
           <h4>Special Moves</h4>
     <ul>
       <li>
-        <strong>Arcane Art:</strong> When you perform art to create a magical effect–influence, healing, empowerment, and more.
-        <div class="text-input">
+        <strong>Arcane Art:</strong> When you perform art to create a magical effect—influence, healing, empowerment, and more.
+        <div class="dropdown">
           <label for="art-form">Art Form:</label>
           <select name="art-form" id="art-form">
             <option value="music">Music</option>
@@ -2240,7 +2385,6 @@
           <h4>Gear</h4>
           <h5>Equipment</h5>
           <ul class="equipment-list">
-            <li>Coin: 5</li>
             <li>Leather Armor – 1 Armor Point</li>
             <li>Needlepoint Sword</li>
             <li>Pipeleaf: 5 uses (extra die to persuasion rolls when smoked with someone)</li>
@@ -2301,7 +2445,6 @@
           <h4>Gear</h4>
           <h5>Equipment</h5>
           <ul class="equipment-list">
-            <li>Coin: 5</li>
             <li>Weapons & Armor:
               <ul>
                 <li>Scale Armor – 2 Armor Points</li>
@@ -2322,6 +2465,5 @@
     
       </div>
   </div>
-  <!-- END OF RULEBOOK HTML CONTENT -->
 </body>
 </html>
