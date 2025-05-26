@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <style>
+       <style>
         /* --- START OF APP STYLES --- */
         :root {
         --bg-primary: #f8fafc;
@@ -59,6 +59,38 @@
         .left-column { padding: 20px; background-color: var(--bg-secondary); border-radius: 12px; box-shadow: 0 4px 12px var(--shadow-light); align-self: start; }
         
         header.controls-header { display: flex; justify-content: flex-end; align-items: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid var(--countdown-block-normal-fill); }
+        
+        /* Styles for the new Soft Reset Button */
+        .soft-reset-button {
+            padding: 0 10px; 
+            height: 38px; 
+            margin-right: 15px; 
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--bg-tertiary);
+            color: var(--text-primary);
+            font-size: 1.4rem; 
+            font-weight: bold; 
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 1px 2px var(--shadow-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+        .soft-reset-button:hover {
+            background-color: var(--countdown-block-normal-fill);
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px var(--shadow-medium);
+        }
+        .soft-reset-button:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 2px var(--shadow-light);
+        }
+        /* End of Soft Reset Button Styles */
+
         .difficulty-control { display: flex; align-items: center; gap: 10px; background-color: var(--bg-secondary); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border-color); box-shadow: 0 1px 3px var(--shadow-light); }
         .difficulty-control .difficulty-label { color: var(--text-secondary); font-weight: 600; font-size: 0.9rem; }
         .difficulty-buttons-group { display: flex; align-items: center; gap: 6px; }
@@ -543,6 +575,7 @@
 
       <div class="right-column">
         <header class="controls-header">
+          <button id="softResetBtn" class="soft-reset-button" title="Reset Dice Pool & Tension Timer">🔄</button>
           <div class="difficulty-control">
             <span class="difficulty-label">DIFFICULTY:</span>
             <div class="difficulty-buttons-group">
@@ -669,6 +702,7 @@
     let currentAnimatedValue = null; 
     let sequenceChainTimeoutId = null; 
     let currentSequenceTotalDice = 0; 
+    let activeAnimationIntervalId = null; // ADDED: For managing animation interval
 
     let nextPlayerHue = 0;
     const HUE_INCREMENT = 37; 
@@ -701,6 +735,7 @@
         const pushLuckBtn = document.getElementById('pushLuckBtn');
         const payPriceBtn = document.getElementById('payPriceBtn');
         const openAddPlayerModalBtn = document.getElementById('openAddPlayerModalBtn');
+        const softResetBtn = document.getElementById('softResetBtn'); // ADDED: Soft Reset Button
 
         const difficultyDisplay = document.getElementById('difficultyDisplay');
         const decreaseDifficultyBtn = document.getElementById('decreaseDifficultyBtn');
@@ -1301,16 +1336,24 @@
             fullUIUpdate();
         }
 
+        // MODIFIED: clearAllContributionsAndStatsJS to handle activeAnimationIntervalId
         function clearAllContributionsAndStatsJS() {
+            isRolling = false; // Set this first to allow animations to naturally stop
+            if (activeAnimationIntervalId) {
+                clearInterval(activeAnimationIntervalId);
+                activeAnimationIntervalId = null;
+            }
+            if (sequenceChainTimeoutId) {
+                clearTimeout(sequenceChainTimeoutId);
+                sequenceChainTimeoutId = null;
+            }
+
             players.forEach(p => { p.contributedDice = 0; p.contributedSpecialMoves = 0; });
             diceContributions = []; specialMoveContributions = [];
             expertise = 0; specialMoves = 0;
             rolls = []; outcomeText = "";
-            isRolling = false; hasRolledThisTurn = false;
+            hasRolledThisTurn = false;
             currentRollIndex = null; currentAnimatedValue = null;
-
-            if (sequenceChainTimeoutId) clearTimeout(sequenceChainTimeoutId);
-            sequenceChainTimeoutId = null;
 
             canPushLuck = false; canPayPrice = false;
             pushedLuckDieRoll = null; isRedoingRollAfterPrice = false;
@@ -1318,13 +1361,23 @@
             currentSequenceTotalDice = 0;
             
             stopAndClearTensionTimer(); 
-            fullUIUpdate();
+            fullUIUpdate(); // This will also reset rollDiceBtn text/state
         }
+
+        // ADDED: Handler for the new soft reset button
+        function handleSoftReset() {
+            clearAllContributionsAndStatsJS();
+        }
+
 
         function handlePushLuck() {
             if (!canPushLuck) return;
             if (sequenceChainTimeoutId) clearTimeout(sequenceChainTimeoutId); 
             sequenceChainTimeoutId = null;
+            if (activeAnimationIntervalId) { // Ensure any lingering animation is stopped
+                clearInterval(activeAnimationIntervalId);
+                activeAnimationIntervalId = null;
+            }
             pushedLuckDieRoll = Math.floor(Math.random() * 6) + 1;
             canPushLuck = false; 
             if (pushedLuckDieRoll <= 3) {
@@ -1354,6 +1407,10 @@
             }
             if (sequenceChainTimeoutId) clearTimeout(sequenceChainTimeoutId); 
             sequenceChainTimeoutId = null;
+             if (activeAnimationIntervalId) { // Ensure any lingering animation is stopped
+                clearInterval(activeAnimationIntervalId);
+                activeAnimationIntervalId = null;
+            }
             canPayPrice = false; 
             isRedoingRollAfterPrice = true;
             if(indexOfRollToRedo === -1) { 
@@ -1388,12 +1445,20 @@
                 currentRollIndex = indexOfRollToRedo; 
                 renderDicePool(); 
                 let animationCounter = 0;
-                const animationIntervalId = setInterval(() => {
+                
+                if (activeAnimationIntervalId) clearInterval(activeAnimationIntervalId); // Clear previous if any
+                activeAnimationIntervalId = setInterval(() => { // MODIFIED: Use global animation ID
+                    if (!isRolling) { // ADDED: Check for interruption
+                        clearInterval(activeAnimationIntervalId);
+                        activeAnimationIntervalId = null;
+                        return;
+                    }
                     currentAnimatedValue = Math.floor(Math.random() * 6) + 1;
                     renderDicePool(); 
                     animationCounter++;
                     if (animationCounter >= SINGLE_DIE_ANIMATION_FRAMES) {
-                        clearInterval(animationIntervalId);
+                        clearInterval(activeAnimationIntervalId);
+                        activeAnimationIntervalId = null; // MODIFIED
                         const newDieRoll = Math.floor(Math.random() * 6) + 1;
                         rolls[indexOfRollToRedo] = newDieRoll; 
                         currentAnimatedValue = newDieRoll;
@@ -1469,8 +1534,11 @@
             processNextDieInSequence(0, currentSequenceTotalDice);
         }
 
+        // MODIFIED: processNextDieInSequence to use global animation ID and check for interruption
         function processNextDieInSequence(rollIdx, totalDiceInPool) {
             if (!isRolling) { 
+                if (activeAnimationIntervalId) clearInterval(activeAnimationIntervalId);
+                activeAnimationIntervalId = null;
                 if (sequenceChainTimeoutId) clearTimeout(sequenceChainTimeoutId);
                 sequenceChainTimeoutId = null;
                 return;
@@ -1478,6 +1546,8 @@
             if (canPushLuck || canPayPrice) { 
                 isRolling = false; 
                 hasRolledThisTurn = true; 
+                if (activeAnimationIntervalId) clearInterval(activeAnimationIntervalId); // Stop animation
+                activeAnimationIntervalId = null;
                 fullUIUpdate();
                 return;
             }
@@ -1485,16 +1555,20 @@
             currentAnimatedValue = null; 
             renderDicePool(); 
             let animationCounter = 0;
-            const animationIntervalId = setInterval(() => {
-                if (!isRolling) { 
-                    clearInterval(animationIntervalId);
+
+            if (activeAnimationIntervalId) clearInterval(activeAnimationIntervalId); // Clear previous if any
+            activeAnimationIntervalId = setInterval(() => {
+                if (!isRolling) { // Check at the start of each interval tick
+                    clearInterval(activeAnimationIntervalId);
+                    activeAnimationIntervalId = null;
                     return;
                 }
                 currentAnimatedValue = Math.floor(Math.random() * 6) + 1;
                 renderDicePool(); 
                 animationCounter++;
                 if (animationCounter >= SINGLE_DIE_ANIMATION_FRAMES) {
-                    clearInterval(animationIntervalId);
+                    clearInterval(activeAnimationIntervalId);
+                    activeAnimationIntervalId = null;
                     const currentDieRoll = Math.floor(Math.random() * 6) + 1;
                     rolls[rollIdx] = currentDieRoll;
                     currentAnimatedValue = currentDieRoll;
@@ -1590,6 +1664,7 @@
         rollDiceBtn.addEventListener('click', startRollingJS);
         pushLuckBtn.addEventListener('click', handlePushLuck);
         payPriceBtn.addEventListener('click', handlePayPrice);
+        softResetBtn.addEventListener('click', handleSoftReset); // ADDED: Event listener for soft reset
 
         setTimeout(() => {
             calculateTensionTimerSvgBorderPerimeter();
@@ -1597,6 +1672,7 @@
         }, 200); 
     });
   </script>
+
 
    <!-- START OF RULEBOOK HTML CONTENT -->
   <div id="rulebookDisplaySection" style="padding-top: 40px; padding-bottom: 40px;">
